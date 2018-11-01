@@ -669,9 +669,4 @@ u3 <- u[u$count==3,]
 a <- hk[hk$MaCBGD=="000393",]
 a <- hk[hk$Khoa=="KTPT",]
 
-lap trinh thu xem sao
-dong 1
-dong 2
-dong 3
-dong 4
-ket thuc 1
+ket thuc buoc 2

@@ -671,14 +671,6 @@ a <- hk[hk$Khoa=="KTPT",]
 
 
 
-fdssf
-tessss
-fsdfasd
-fsds
-fdsfasd
-
-
-buoc 2
 
 
 

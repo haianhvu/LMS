@@ -95,21 +95,23 @@ no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
 # Check again using another merge
 fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
 sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi?
-#why
+diff(fullstudent2,fullstudent)
+diff <- setdiff(fullstudent2[,c(5:8,13:15)],fullstudent[,c(1:4,10,12,14)])
+# Reason: problem in Date Time format
+
+# Test the reason again
 test <- fullstudent2[is.na(fullstudent2$STT),]
-sum(test$NÄfm.Tuyá.fn.sinh..TS. < 2016) # 36 cases
+sum(test$NÄfm.Tuyá.fn.sinh..TS. < 2016) #  36 cases
 no_diemthi42 <- test[test$NÄfm.Tuyá.fn.sinh..TS. == 2016, ]
 # 7 cases with 2 of them is Du Bi, some of them appers 2 times in merged data
 # e.g 31161027023 in fullstudent2 have problem in NgaySinh
 sum(duplicated(fullstudent2$MSSV)) # 4 cases
 a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, fromLast = TRUE),]
 
+# Fix the problem
+diemthi$NgaySinh <- as.Date(diemthi$NgaySinh, format = "%d/%m/%Y") # Note: %Y and %y is different.
+diemthi$NgaySinh <- strftime(diemthi$ngay, "%d/%m/%Y")
 
-diemthi$ngay <- as.Date(diemthi$NgaySinh, format = "%d/%m/%y")
-diemthi$ngay2 <- strftime(diemthi$ngay, "%d/%m/%Y")
-
-b <- as.Date(diemthi$NgaySinh, format = "%d/%m/%y")
-diemthi$ngay <- b
 
 # Checked if students in the list DiemThi appear in the student info data
 

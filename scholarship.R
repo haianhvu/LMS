@@ -110,13 +110,18 @@ sum(duplicated(fullstudent2$MSSV)) # 4 cases
 a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, fromLast = TRUE),]
 
 # Fix the problem
-diemthi$NgaySinh <- as.Date(diemthi$NgaySinh, format = "%d/%m/%Y") # Note: %Y and %y is different.
-diemthi$NgaySinh <- strftime(diemthi$NgaySinh, "%d/%m/%Y")
-studentinfo$NgaySinh <- as.Date(studentinfo$NgaySinh, format = "%d/%m/%Y") # Note: %Y and %y is different.
-studentinfo$NgaySinh <- strftime(studentinfo$NgaySinh, "%d/%m/%Y")
+# diemthi$NgaySinh <- as.Date(diemthi$NgaySinh, format = "%d/%m/%Y") # Note: %Y and %y is different.
+# diemthi$NgaySinh <- strftime(diemthi$NgaySinh, "%d/%m/%Y")
+# studentinfo$NgaySinh <- as.Date(studentinfo$NgaySinh, format = "%d/%m/%Y") # Note: %Y and %y is different.
+# studentinfo$NgaySinh <- strftime(studentinfo$NgaySinh, "%d/%m/%Y")
+# 
+# fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
+# sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi
 
-fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
-sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi
+# Fix the problem
+diemthi[diemthi$SoBaoDanh == "DCN006136", ][7] <- "16/01/1998" 
+diemthi[diemthi$MSSV == "31161027023", ][7] <- "09/06/1997"
+diemthi[diemthi$MSSV == "31161027008", ][7] <- "04/03/1996"
 
 # Do not really fix the problem.
 test <- fullstudent2[is.na(fullstudent2$STT),]

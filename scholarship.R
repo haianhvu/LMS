@@ -79,7 +79,10 @@ levels(as.factor(diemthi$`Môn 3`)) ## Chemistry and English
 levels(as.factor(diemthi$Khoi))    ## 3 types
 names(diemthi)[19] <- "MSSV"
 names(diemthi)[16] <- "MaHS"
-
+# Fix the problem
+diemthi[diemthi$SoBaoDanh == "DCN006136", ][7] <- "16/01/1998" 
+diemthi[diemthi$MSSV == "31161027023", ][7] <- "09/06/1997"
+diemthi[diemthi$MSSV == "31161027008", ][7] <- "04/03/1996"
 
 # Input data student info
 studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
@@ -98,12 +101,12 @@ no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
 fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
 sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi?
 diff <- setdiff(fullstudent2[,c(5:8,13:15)],fullstudent[,c(1:4,10,12,14)])
-# Reason: problem in Date Time format
+# Diff is 0: no difference
 
 # Test the reason again
-test <- fullstudent2[is.na(fullstudent2$STT),]
-sum(test$NÄfm.Tuyá.fn.sinh..TS. < 2016) #  36 cases from K41, 40
-no_diemthi42 <- test[test$NÄfm.Tuyá.fn.sinh..TS. == 2016, ] # 7 cases from K40
+test <- fullstudent2[is.na(fullstudent2$STT),] # 40 cases
+sum(test[50] < 2016) #  36 cases from K41, 40
+no_diemthi42 <- test[test[50] == 2016, ] # 4 cases from K40
 # 7 cases with 2 of them is Du Bi, some of them appers 2 times in merged data
 # e.g 31161027023 in fullstudent2 have problem in NgaySinh
 sum(duplicated(fullstudent2$MSSV)) # 4 cases
@@ -118,10 +121,7 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 # fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
 # sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi
 
-# Fix the problem
-diemthi[diemthi$SoBaoDanh == "DCN006136", ][7] <- "16/01/1998" 
-diemthi[diemthi$MSSV == "31161027023", ][7] <- "09/06/1997"
-diemthi[diemthi$MSSV == "31161027008", ][7] <- "04/03/1996"
+
 
 # Do not really fix the problem.
 test <- fullstudent2[is.na(fullstudent2$STT),]

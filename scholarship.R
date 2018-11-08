@@ -138,10 +138,16 @@ levels(as.factor(hk2$S·...t√.n.ch·..)) ## All of them had 13. why?
 length(unique(hk1$MSSV)) ### 3177 / 3434. 257 duplicated
 sum(duplicated(hk1$MSSV))
 length(unique(hk2$MSSV)) ### 3126 / 3385. 259 duplicated
+sum(duplicated(hk2$MSSV))
 
 # Drop duplicated data
 hk1a <- unique(hk1) ### 3182 students. Still having 5 MSSV duplicated
 sum(duplicated(hk1a$MSSV))
+hk1a[duplicated(hk1a$MSSV),][,1]
 
 hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
 sum(duplicated(hk2a$MSSV))
+hk2a[duplicated(hk2a$MSSV),][,1]
+
+
+

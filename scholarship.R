@@ -149,5 +149,7 @@ hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
 sum(duplicated(hk2a$MSSV))
 hk2a[duplicated(hk2a$MSSV),][,1]
 
-
+# Delete Students of BI, AV, AE
+removelist <- c('AV', "AE", 'BI')
+hk1b <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
 

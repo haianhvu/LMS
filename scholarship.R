@@ -151,5 +151,15 @@ hk2a[duplicated(hk2a$MSSV),][,1]
 
 # Delete Students of BI, AV, AE
 removelist <- c('AV', "AE", 'BI')
-hk1b <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
+hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
+# This is the "Nhom 4" Scholarship: 7.77 / 79
+
+###### Tabula
+table(hk1final[hk1final$Ä.iá.fm.TBCHT >= 7.77,]$Xáº.p.loáº.i.rÃ.n.luyá..n)
+table(hk1final[hk1final$Ä.iá.fm.rÃ.n.luyá..n >= 79,]$Xáº.p.loáº.i.há..c.táº.p)
+
+
+
+
+
 

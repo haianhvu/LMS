@@ -668,10 +668,3 @@ u3 <- u[u$count==3,]
 
 a <- hk[hk$MaCBGD=="000393",]
 a <- hk[hk$Khoa=="KTPT",]
-
-
-
-
-tessss
-fsdfasd
-fsds

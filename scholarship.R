@@ -73,6 +73,38 @@ xuathien1hb <- sch2[!indDuplicatedVec,]
 # sum(no_entrance$NÄfm.Tuyá.fn.sinh..TS. < 2016)
 
 
+# ------ Input the data K42 Diem Thi Dau Vao ------
+# Test how many type of entrance exams: 
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
+diemthi <- read_delim(file = "K42-Diem2.csv", delim=',')
+levels(as.factor(diemthi$`Môn 1`)) ## Only Math
+levels(as.factor(diemthi$`Môn 2`)) ## Physics and Liter
+levels(as.factor(diemthi$`Môn 3`)) ## Chemistry and English
+levels(as.factor(diemthi$Khoi))    ## 3 types
+names(diemthi)[19] <- "MSSV"
+names(diemthi)[16] <- "MaHS"
+# Fix the problem
+diemthi[diemthi$SoBaoDanh == "DCN006136", ][7] <- "16/01/1998" 
+diemthi[diemthi$MSSV == "31161027023", ][7] <- "09/06/1997"
+diemthi[diemthi$MSSV == "31161027008", ][7] <- "04/03/1996"
 
+# Input data student info
+studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
+names(studentinfo)[1] <- c("MSSV")
+names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
+
+# Merge 2 data sets
+fullstudent <- merge(diemthi, studentinfo, by = "MSSV", all=TRUE)
+
+# Diemthi 4943 while fullstudent 4983, why having more 40 cases?
+sum(is.na(fullstudent[,2])) #  40 cases: 36 cases from K41, K40, but 4 cases from K42.
+no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
+
+# Check again using another merge
+fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
+
+buoc 1
+buoc 2
+buoc 3
 
 

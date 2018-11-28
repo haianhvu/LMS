@@ -123,49 +123,5 @@ sum(duplicated(fullstudent2$MSSV))
 
 #-------------- Grade import -------------------
 
-setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
-
-hk1 <- read.csv("Grade/K42_CTT_HKC_2016.csv", stringsAsFactors=FALSE)
-hk2 <- read.csv("Grade/K42_CTT_HKD_2017.csv", stringsAsFactors=FALSE)
-hk1 <- hk1[,-1]
-hk2 <- hk2[,-1]
-
-# How many type of credits the students take
-levels(as.factor(hk1$S·...t√.n.ch·..)) ## All of them had 15 (maybe first semester)
-levels(as.factor(hk2$S·...t√.n.ch·..)) ## All of them had 13. why?
-
-# howmany students
-length(unique(hk1$MSSV)) ### 3177 / 3434. 257 duplicated
-sum(duplicated(hk1$MSSV))
-length(unique(hk2$MSSV)) ### 3126 / 3385. 259 duplicated
-sum(duplicated(hk2$MSSV))
-
-# Drop duplicated data
-hk1a <- unique(hk1) ### 3182 students. Still having 5 MSSV duplicated
-sum(duplicated(hk1a$MSSV))
-hk1a[duplicated(hk1a$MSSV),][,1]
-
-hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
-sum(duplicated(hk2a$MSSV))
-hk2a[duplicated(hk2a$MSSV),][,1]
-
-# Delete Students of BI, AV, AE. Final having 2843
-removelist <- c('AV', "AE", 'BI')
-hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$L·..p), ]
-# This is the "Nhom 4" Scholarship: 7.77 / 79
-
-# Delete student duplicated because of having 2 differents GPA
-hk1final[duplicated(hk1final$MSSV),][,1] ## 2 students
-hk1final <- hk1final[!duplicated(hk1final$MSSV)==1,]
-
-###### Tabula
-a <- table(hk1final[hk1final$ƒ.i·.fm.TBCHT >= 7.77,]$X·∫.p.lo·∫.i.r√.n.luy·..n)
-b <- table(hk1final[hk1final$ƒ.i·.fm.r√.n.luy·..n >= 79,]$X·∫.p.lo·∫.i.h·..c.t·∫.p)
-addmargins(a)
-addmargins(b)
-
-test <- hk1final[hk1final$ƒ.i·.fm.TBCHT >= 7.77 & hk1final$X·∫.p.lo·∫.i.r√.n.luy·..n >= 79,]
-
-
 
 

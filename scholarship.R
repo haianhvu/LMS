@@ -149,7 +149,23 @@ hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
 sum(duplicated(hk2a$MSSV))
 hk2a[duplicated(hk2a$MSSV),][,1]
 
-# Delete Students of BI, AV, AE
+# Delete Students of BI, AV, AE. Final having 2843
 removelist <- c('AV', "AE", 'BI')
-hk1b <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$L·..p), ]
+hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$L·..p), ]
+# This is the "Nhom 4" Scholarship: 7.77 / 79
+
+# Delete student duplicated because of having 2 differents GPA
+hk1final[duplicated(hk1final$MSSV),][,1] ## 2 students
+hk1final <- hk1final[!duplicated(hk1final$MSSV)==1,]
+
+###### Tabula
+a <- table(hk1final[hk1final$ƒ.i·.fm.TBCHT >= 7.77,]$X·∫.p.lo·∫.i.r√.n.luy·..n)
+b <- table(hk1final[hk1final$ƒ.i·.fm.r√.n.luy·..n >= 79,]$X·∫.p.lo·∫.i.h·..c.t·∫.p)
+addmargins(a)
+addmargins(b)
+
+test <- hk1final[hk1final$ƒ.i·.fm.TBCHT >= 7.77 & hk1final$X·∫.p.lo·∫.i.r√.n.luy·..n >= 79,]
+
+
+
 

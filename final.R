@@ -652,6 +652,7 @@ hk_courselist2 <- hk_courselist[hk_courselist$TenTA!="Security and Defence Educa
 table(hk$MaCBGD) -> lecturer
 lecturer <- data.frame(lecturer)
 
+
 # Number of class duplicated and not duplicated in hk data:
 aggregate(count ~ classcode + MaHP,data=hk,FUN=sum) -> duplicated_class
 sum(duplicated_class$count!=1)   # Splited class: 1008

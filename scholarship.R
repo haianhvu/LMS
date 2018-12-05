@@ -144,12 +144,13 @@ sum(duplicated(hk2$MSSV))
 hk1a <- unique(hk1) ### 3182 students. Still having 5 MSSV duplicated
 sum(duplicated(hk1a$MSSV))
 hk1a[duplicated(hk1a$MSSV),][,1]
+hk1a <- hk1a[!(duplicated(hk1a$MSSV) | duplicated(hk1a$MSSV, fromLast = TRUE)),]
 
 hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
 sum(duplicated(hk2a$MSSV))
 hk2a[duplicated(hk2a$MSSV),][,1]
 
-# Delete Students of BI, AV, AE
+# Delete Students of BI, AV, AE major
 removelist <- c('AV', "AE", 'BI')
 hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
 # This is the "Nhom 4" Scholarship: 7.77 / 79
@@ -162,6 +163,14 @@ addmargins(b)
 
 test <- hk1final[hk1final$Ä.iá.fm.TBCHT >= 7.77 & hk1final$Xáº.p.loáº.i.rÃ.n.luyá..n >= 79,]
 
+
+# Merge Scholarship Receiver data with Academic Achievement data
+final_kkht <- merge(hk1final, KKHT42, by = "MSSV", all.x=TRUE)
+sum(final_kkht$Ä.iá.fm.TBCHT == final_kkht$dtbhb)
+# test for data of 2 datasets coincide
+final_kkht$a <- ifelse(is.na(final_kkht$Stt),-1,final_kkht$Ä.iá.fm.TBCHT == final_kkht$dtbhb)
+test <- final_kkht[final_kkht$a==0,] #only one case has problem, but just typo
+# Correct typo by AGP of P.DT&QLSV
 
 
 

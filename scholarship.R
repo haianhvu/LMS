@@ -172,7 +172,11 @@ final_kkht$a <- ifelse(is.na(final_kkht$Stt),-1,final_kkht$Ä.iá.fm.TBCHT == fina
 test <- final_kkht[final_kkht$a==0,] #only one case has problem, but just typo
 # Correct typo by AGP of P.DT&QLSV
 
-
+# Sort data to check AGP higher than 7.77
+final_kkht <- final_kkht[order(final_kkht$Ä.iá.fm.TBCHT, decreasing=TRUE),]
+a <- final_kkht[c(1:10,26,13:18,21:24)]
+### Move column by names: df[c("g",names(df)[-7])]
+### or: df <- subset(df, select=c(g,a:f))
 
 
 

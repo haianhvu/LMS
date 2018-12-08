@@ -167,16 +167,31 @@ test <- hk1final[hk1final$ƒ.i·.fm.TBCHT >= 7.77 & hk1final$X·∫.p.lo·∫.i.r√.n.luy
 # Merge Scholarship Receiver data with Academic Achievement data
 final_kkht <- merge(hk1final, KKHT42, by = "MSSV", all.x=TRUE)
 sum(final_kkht$ƒ.i·.fm.TBCHT == final_kkht$dtbhb)
-# test for data of 2 datasets coincide
+# test for data of 2 datasets coincide in AGP
 final_kkht$a <- ifelse(is.na(final_kkht$Stt),-1,final_kkht$ƒ.i·.fm.TBCHT == final_kkht$dtbhb)
 test <- final_kkht[final_kkht$a==0,] #only one case has problem, but just typo
 # Correct typo by AGP of P.DT&QLSV
 
 # Sort data to check AGP higher than 7.77
 final_kkht <- final_kkht[order(final_kkht$ƒ.i·.fm.TBCHT, decreasing=TRUE),]
-a <- final_kkht[c(1:10,26,13:18,21:24)]
+a <- final_kkht[c(1:4,14:16,5,13,7,9,17,18,21:24,26)]
 ### Move column by names: df[c("g",names(df)[-7])]
 ### or: df <- subset(df, select=c(g,a:f))
 
+# See that: 31151023710, 31151020956,... is K41 student, no scholarsip although >8.0
+# 31161025367,31161026922,31161023496,.... no scholarship
+h7.77 <- a[a$ƒ.i·.fm.TBCHT >= 7.77,]
+no_scholarship3 <- h7.77[is.na(h7.77$`%HTHT+KKHT`),]
+no_scholarship1 <- a[a$ƒ.i·.fm.TBCHT >= 7.77,][is.na(a$`%HTHT+KKHT`),]
+no_scholarship2 <- no_scholarship1[!is.na(no_scholarship1$MSSV),]
+setdiff(no_scholarship2,no_scholarship3)
+
+# There are 12 students having no scholarship, check them in scholarship HHHT
+merge <- merge(no_scholarship2,HTHT42, by = "MSSV")
+# only 1 student, but her AGP is quite different while DRL is not. 
+# Reason: maybe she retake the test.
+
+# Eliminate all 12 students out of data, and we will have a good data that 
+# ensures all students having AGP higher or equal 7.77 will receive the scholarship.
 
 

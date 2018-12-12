@@ -193,5 +193,23 @@ merge <- merge(no_scholarship2,HTHT42, by = "MSSV")
 
 # Eliminate all 12 students out of data, and we will have a good data that 
 # ensures all students having AGP higher or equal 7.77 will receive the scholarship.
+final_kkht2 <- final_kkht[! final_kkht$MSSV %in% no_scholarship2$MSSV,]
+# 2839 - 12 = 2837
 
+# Rearrange columns to be easier to analyze
+final_kkht3 <- final_kkht2[c(1:4,14:16,6,7,9,17,18,5,13,20:27)]
 
+# Check the Class Code difference
+a <- subset(final_kkht3,Lá..p == Lop)
+# 4 students have the same class code, all of them are HPR or CLC
+# data should just include only Normal Program, why still have HPR or CLC?
+
+# 1. Chuong trình ch???t lu???ng cao: Qu???n tri: ADC; Kinh doanh qu???c t???: IBC; Tài chính_FNC; K??? toán doanh nghi???p_KNC; Ki???m toán_KIC.(thu???ng chuong trình CLC có ký t??? C ??? cu???i mã )
+# 2. Chuong trình h???c phí riêng: (Có 04 chuong trình) Kinh t??? nông nghi???p_AG; Kinh t??? chính tr???_KC; Toán tài chính_TF; Th???ng kê kinh doanh_TD;
+# 3. Chuong trình h???c phí bình thu???ng: Các chuong trình còn l???i. Trong dó: Ti???ng anh thuong m???i_AV; Kinh t??? h???c ???ng d???ng_AE; H??? th???ng thông tin kinh doanh_BI (Tr??? 03 chuyên ngành này ra s??? là nhóm 4)
+
+# Remove student diffrent from Nhom 4:
+removelist <- c('ADC', "IBC", "FNC","KNC", "KIC", "AG","KC","TF","TD","AV", "AE", "BI")
+test <- final_kkht3[ grepl(paste(removelist, collapse="|"), final_kkht3$Lá..p), ]
+# Have to remove 24 students, so only 2803 available
+final_kkht4 <- setdiff(final_kkht3, test)

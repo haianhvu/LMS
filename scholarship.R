@@ -227,6 +227,6 @@ final_kkht4$`so tien` <- as.numeric(final_kkht4$`so tien`)
 names(final_kkht4)[c(2:4,8:10,15:18,19:21)] <- c("ho","ten","ngaysinh","tinchi","tbht",
                                      "renluyen","dacap","htht","kkht","tongcong",
                                      "senhan","sotien","chikkht")
-
+# Export to stata
 write.dta(final_kkht4, "finalkkht.dta")
-getwd()
+

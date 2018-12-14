@@ -1,8 +1,10 @@
 install.packages("readr")
 install.packages("dplyr")
+install.packages("foreign")
 
 library("readr")
 library("dplyr")
+library("foreign")
 
 rm(list = ls())
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
@@ -213,3 +215,18 @@ removelist <- c('ADC', "IBC", "FNC","KNC", "KIC", "AG","KC","TF","TD","AV", "AE"
 test <- final_kkht3[ grepl(paste(removelist, collapse="|"), final_kkht3$Lá..p), ]
 # Have to remove 24 students, so only 2803 available
 final_kkht4 <- setdiff(final_kkht3, test)
+length(final_kkht4[final_kkht4$Ä.iá.fm.TBCHT >= 7.77,][,1])
+# 287 students have scholarship
+
+# Change comma in "so tien"
+final_kkht4$`so tien` <- substr(final_kkht4$`so tien`,1,10)
+final_kkht4$`so tien` <- gsub(",", "", final_kkht4$`so tien`, fixed = TRUE)
+final_kkht4$`so tien` <- as.numeric(final_kkht4$`so tien`)
+
+#change the name of variable
+names(final_kkht4)[c(2:4,8:10,15:18,19:21)] <- c("ho","ten","ngaysinh","tinchi","tbht",
+                                     "renluyen","dacap","htht","kkht","tongcong",
+                                     "senhan","sotien","chikkht")
+
+write.dta(final_kkht4, "finalkkht.dta")
+getwd()

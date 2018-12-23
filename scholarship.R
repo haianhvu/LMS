@@ -219,7 +219,7 @@ test <- final_kkht3[ grepl(paste(removelist, collapse="|"), final_kkht3$Lá..p), 
 # Have to remove 24 students, so only 2803 available
 final_kkht4 <- setdiff(final_kkht3, test)
 length(final_kkht4[final_kkht4$Ä.iá.fm.TBCHT >= 7.77,][,1])
-# 287 students have scholarship
+# 287 students have scholarship of KKHT
 
 # Change comma in "so tien"
 final_kkht4$`so tien` <- substr(final_kkht4$`so tien`,1,10)
@@ -233,12 +233,30 @@ names(final_kkht4)[c(2:4,8:10,15:18,19:21)] <- c("ho","ten","ngaysinh","tinchi",
 # Export to stata
 write.dta(final_kkht4, "finalkkht.dta")
 
+
+# ----------------- Combine data ---------------
 # Merge data: info + diemthi data and final_kkht4 data 
 final_full_kkht1 <- merge(final_kkht4, finalstudent, by = "MSSV", all.x=TRUE)
 final_full_kkht2 <- merge(final_kkht4, finalstudent, by = "MSSV")
 dif <- setdiff(final_full_kkht1,final_full_kkht2)
 # Still having 2 students who do not exist in info and diemthi.
-# Reason: they are DH41.
+# Reason: they are DH41. So final_full_kkht2 is correct
+
 # Note: DH41 means they are K41. MSSV is 3115 is K41 intake, 
 # i.e. enrolled in K41 but did not study.
 # They study with K42 students, so 3115 still have DH42
+
+# Check name of student coincidence
+final <- final_full_kkht2
+final$hocbong <- ifelse(is.na(final$sotien),0,1)
+sum(final$hocbong) # 287 KKHT scholarships: correct
+final <- final[order(final$tbht, decreasing=TRUE),]
+
+# check diemthi of 2801 students of final data, are they A1 exam group?
+test1 <- merge(diemthi, final, by = "MSSV", all.y=TRUE)
+test2 <- merge(diemthi, final, by = "MSSV")
+test <- setdiff(test1,test2)
+# Have difference: 3 students from K42 intake, 4 from K40, 11 from K41
+
+# No, they are A00, A01, D01
+table(test2$Khoi.x)

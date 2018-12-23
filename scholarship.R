@@ -107,6 +107,9 @@ fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names
 sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi?
 diff <- setdiff(fullstudent2[,c(5:8,13:15)],fullstudent[,c(1:4,10,12,14)])
 length(diff$MSSV) # Diff is 0: no difference
+setdiff(fullstudent2$MSSV,fullstudent$MSSV)
+sum(duplicated(fullstudent$MSSV))
+sum(duplicated(fullstudent2$MSSV))
 
 # Test the reason again
 test <- fullstudent2[is.na(fullstudent2$STT),] # 40 cases
@@ -119,7 +122,7 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 # only one cases who applied to two major
 
 # Delete the DC major of this student
-fullstudent2 <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
+finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
 sum(duplicated(fullstudent2$MSSV))
 
 
@@ -230,3 +233,12 @@ names(final_kkht4)[c(2:4,8:10,15:18,19:21)] <- c("ho","ten","ngaysinh","tinchi",
 # Export to stata
 write.dta(final_kkht4, "finalkkht.dta")
 
+# Merge data: info + diemthi data and final_kkht4 data 
+final_full_kkht1 <- merge(final_kkht4, finalstudent, by = "MSSV", all.x=TRUE)
+final_full_kkht2 <- merge(final_kkht4, finalstudent, by = "MSSV")
+dif <- setdiff(final_full_kkht1,final_full_kkht2)
+# Still having 2 students who do not exist in info and diemthi.
+# Reason: they are DH41.
+# Note: DH41 means they are K41. MSSV is 3115 is K41 intake, 
+# i.e. enrolled in K41 but did not study.
+# They study with K42 students, so 3115 still have DH42

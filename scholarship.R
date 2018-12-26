@@ -202,7 +202,7 @@ final_kkht2 <- final_kkht[! final_kkht$MSSV %in% no_scholarship2$MSSV,]
 # 2839 - 12 = 2837
 
 # Rearrange columns to be easier to analyze
-final_kkht3 <- final_kkht2[c(1:4,14:16,6,7,9,17,18,5,13,20:27)]
+final_kkht3 <- final_kkht2[c(1:4,14:16,6,7,9,10,17,18,5,13,20:27)]
 
 # Check the Class Code difference
 a <- subset(final_kkht3,Lá..p == Lop)
@@ -227,7 +227,7 @@ final_kkht4$`so tien` <- gsub(",", "", final_kkht4$`so tien`, fixed = TRUE)
 final_kkht4$`so tien` <- as.numeric(final_kkht4$`so tien`)
 
 #change the name of variable
-names(final_kkht4)[c(2:4,8:10,15:18,19:21)] <- c("ho","ten","ngaysinh","tinchi","tbht",
+names(final_kkht4)[c(2:4,8:10,16:19,20:22)] <- c("ho","ten","ngaysinh","tinchi","tbht",
                                      "renluyen","dacap","htht","kkht","tongcong",
                                      "senhan","sotien","chikkht")
 # Export to stata
@@ -260,3 +260,19 @@ test <- setdiff(test1,test2)
 
 # No, they are A00, A01, D01
 table(test2$Khoi.x)
+
+# -------- Eliminate all of student receive HTHT ----------
+htht_id <- HTHT42$MSSV # Get MSSV of HTHT: 162 students
+# some receive 100% of 2 types of HB, some receive 50% of each HB
+# so need to keep them, not eliminate
+twosch <- intersect(HTHT42$MSSV,KKHT$MSSV)# get 18  MSSV receiving 2 scholarsips
+only_htht42 <- HTHT42[! HTHT42$MSSV %in% twosch,] # 162 -18 = 144 observations
+intersect(a$MSSV,KKHT$MSSV) # Check again, it is ok
+# Delete observations receiving HTHT only
+final <- final[! final$MSSV %in% only_htht42$MSSV,] 
+# Final number is 2674 while 2801 - 144 = 2657
+# Reason: some students among 144 students are eliminated early, e.g. HPR, CLC
+
+#-------------- Some Analysis -------------
+table(final$dacap) # How many students have received other scholarship: 0
+table(final$Khoi) # A00: 1691, A01: 685, D01: 280

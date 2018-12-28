@@ -275,4 +275,22 @@ final <- final[! final$MSSV %in% only_htht42$MSSV,]
 
 #-------------- Some Analysis -------------
 table(final$dacap) # How many students have received other scholarship: 0
-table(final$Khoi) # A00: 1691, A01: 685, D01: 280
+table(final$Khoi) # A00: 1691, A01: 685, D01: 280. Maybe other reserach?
+
+table(final$Khoi,final$hocbong) # Scholarship among KhoiThi.
+hist(final$tbht)
+hist(final[final$Khoi == "A00",]$tbht, breaks=20)
+hist(final[final$Khoi == "A01",]$tbht, breaks = 20, freq = FALSE)
+hist(final[final$Khoi == "D01",]$tbht, breaks = 20)
+
+curve(dnorm(x, mean=mean(final[final$Khoi == "D01",]$tbht), sd=sd(final[final$Khoi == "D01",]$tbht)), add=TRUE, col="darkblue", lwd=2)
+
+# Test mean of AGP different btw KhoiThi
+sum(is.na(final$tbht)) # every students have tbht
+sum(is.na(final[final$Khoi == "A00",]$tbht)) # 18, not everyone has KhoiThi
+sum(is.na(final[final$Khoi == "A01",]$tbht)) # 18
+sum(is.na(final[final$Khoi == "D01",]$tbht)) # 18, So only 18 students do not have KhoiThi
+
+sum(is.na(final[final$Khoi == "A00",]$DM1)) # 24
+sum(is.na(final[final$Khoi == "A01",]$DM1)) # 18
+sum(is.na(final[final$Khoi == "D01",]$DM1)) # 18

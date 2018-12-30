@@ -292,5 +292,24 @@ sum(is.na(final[final$Khoi == "A01",]$tbht)) # 18
 sum(is.na(final[final$Khoi == "D01",]$tbht)) # 18, So only 18 students do not have KhoiThi
 
 sum(is.na(final[final$Khoi == "A00",]$DM1)) # 24
+#a <- final[final$Khoi == "A00" & is.na(final$DM1),]  # 7 studetns
+#b <- final[is.na(final$Khoi),]                       # 18 students
 sum(is.na(final[final$Khoi == "A01",]$DM1)) # 18
 sum(is.na(final[final$Khoi == "D01",]$DM1)) # 18
+
+#
+a <- setdiff(final$ngaysinh,final$NgaySinh)
+b <- setdiff(final$ngaysinh,final$`Ngay sinh`)
+levels(as.factor(final$Nganh))
+names(final)[64] <- "doanvien"
+
+delete <- c(5:7,11,12,14,30:32,34,39:41,43:45,47,49:50,52,59:62,65,69,74,76:81,87:93,95,98,99:107,114,116:143)
+final <- final[, - delete]
+
+names(final)[c(7:8,25:27,30,31,34,35,37,38,46,47,49,50)] <- c("renluyen1","renluyen2","mon1","mon2","mon3",
+                             "noisinh", "gioitinh", "tongiao","thuongtru",
+                             "tinh", "maQH","namtuyensinh","soBD","namtotnghiep",
+                             "nhaphoc")
+names(final)[c(51:52,54,58:60,62,64)] <- c("MaLoaiSV","LoaiSV","FatherOccupation","TenKhoa"
+                                  , "MaNganh","NganhHoc","ChuongTrinh",
+                                  "MaLopDC")

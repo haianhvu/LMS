@@ -1,10 +1,12 @@
 install.packages("readr")
 install.packages("dplyr")
 install.packages("foreign")
+install.packages("haven")
 
 library("readr")
 library("dplyr")
 library("foreign")
+library(haven)
 
 rm(list = ls())
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
@@ -231,7 +233,7 @@ names(final_kkht4)[c(2:4,8:10,16:19,20:22)] <- c("ho","ten","ngaysinh","tinchi",
                                      "renluyen","dacap","htht","kkht","tongcong",
                                      "senhan","sotien","chikkht")
 # Export to stata
-write.dta(final_kkht4, "finalkkht.dta")
+write_dta(final_kkht4, "finalkkht.dta")
 
 
 # ----------------- Combine data ---------------
@@ -310,6 +312,18 @@ names(final)[c(7:8,25:27,30,31,34,35,37,38,46,47,49,50)] <- c("renluyen1","renlu
                              "noisinh", "gioitinh", "tongiao","thuongtru",
                              "tinh", "maQH","namtuyensinh","soBD","namtotnghiep",
                              "nhaphoc")
-names(final)[c(51:52,54,58:60,62,64)] <- c("MaLoaiSV","LoaiSV","FatherOccupation","TenKhoa"
+names(final)[c(51:53,54,58:60,62,64)] <- c("MaLoaiSV","LoaiSV","matinhtrang","FatherOccupation","TenKhoa"
                                   , "MaNganh","NganhHoc","ChuongTrinh",
                                   "MaLopDC")
+
+# Merge with HK2 dataset
+hk2a <- hk2a[,c(1,6,7,9)]
+names(hk2a)[2:4] <- c("tinchi2","tbhthk2","renluyenhk2")
+final_1<- merge(final,hk2a, by = "MSSV")
+final_2 <- merge(final,hk2a, by = "MSSV", all.x=TRUE) # 42 students do not study HK2
+setdiff <- setdiff(final_2,final_1) #order matters: bigger is first,
+
+  
+# Export to stata
+final <- final_1
+write_dta(final, "final.dta")

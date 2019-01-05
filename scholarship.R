@@ -323,6 +323,7 @@ final_1<- merge(final,hk2a, by = "MSSV")
 final_2 <- merge(final,hk2a, by = "MSSV", all.x=TRUE) # 42 students do not study HK2
 setdiff <- setdiff(final_2,final_1) #order matters: bigger is first,
 
+# Change some variables: gender, relegion, area, .....
   
 # Export to stata
 final <- final_1

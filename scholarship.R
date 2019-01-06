@@ -6,7 +6,7 @@ install.packages("haven")
 library("readr")
 library("dplyr")
 library("foreign")
-library(haven)
+library("haven")
 
 rm(list = ls())
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
@@ -351,5 +351,4 @@ levels(as.factor(final$AreaID)) # cong diem khu vuc, KV1: 1.5, KV2NT: 1, KV2: 0.
 
 
 # Export to stata
-final <- final_1
 write_dta(final, "final.dta")

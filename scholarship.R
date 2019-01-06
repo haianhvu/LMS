@@ -233,7 +233,7 @@ names(final_kkht4)[c(2:4,8:10,16:19,20:22)] <- c("ho","ten","ngaysinh","tinchi",
                                      "renluyen","dacap","htht","kkht","tongcong",
                                      "senhan","sotien","chikkht")
 # Export to stata
-write_dta(final_kkht4, "finalkkht.dta")
+#write_dta(final_kkht4, "finalkkht.dta")
 
 
 # ----------------- Combine data ---------------
@@ -323,8 +323,33 @@ final_1<- merge(final,hk2a, by = "MSSV")
 final_2 <- merge(final,hk2a, by = "MSSV", all.x=TRUE) # 42 students do not study HK2
 setdiff <- setdiff(final_2,final_1) #order matters: bigger is first,
 
-# Change some variables: gender, relegion, area, .....
-  
+# Change some variables: gender (nu la 1, nam la 0), relegion, area, .....
+final <- final_1
+
+colnames(final)[(names(final) == "Phai")] <- "gender" #some missing values, so use var gioitinh
+table(final$gioitinh) #Nu la 1, nam la 0
+# final$gender <- as.factor(final$gioitinh)  
+# table(final$gender)
+final$gender <- ifelse(final$gioitinh == "Nam",0,1) # Nam = 0, Nu = 1
+
+levels(as.factor(final$ReligionID))
+levels(as.factor(final$tongiao))
+table(final$ReligionID)
+str(final$ReligionID)   # here, var Religion is still character, not factor
+final$ReligionID <- as.factor(final$ReligionID) # convert to factor
+levels(final$ReligionID) <- c("0","0",levels(final$ReligionID)[3:10]) # Combine factors
+
+table(final$EthnicID)
+final$EthnicID <- as.factor(final$EthnicID)
+levels(final$EthnicID) <- c("KINH","KINH",levels(final$EthnicID)[3:19])
+
+levels(as.factor(final$ProvinceID))
+levels(as.factor(final$PriorityID))
+levels(as.factor(final$PriorityName)) # 3 la khong uu tien, 1 uu tien 1 
+levels(as.factor(final$AreaID))
+
+
+
 # Export to stata
 final <- final_1
 write_dta(final, "final.dta")

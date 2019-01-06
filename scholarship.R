@@ -344,9 +344,9 @@ final$EthnicID <- as.factor(final$EthnicID)
 levels(final$EthnicID) <- c("KINH","KINH",levels(final$EthnicID)[3:19])
 
 levels(as.factor(final$ProvinceID))
-levels(as.factor(final$PriorityID))
-levels(as.factor(final$PriorityName)) # 3 la khong uu tien, 1 uu tien 1 
-levels(as.factor(final$AreaID))
+levels(as.factor(final$PriorityID))   # nhom uu tien 1 cong 2 diem, nhom uu tien 2 cong 1 diem
+levels(as.factor(final$PriorityName)) # 3 la khong uu tien, 1 la uu tien 1 
+levels(as.factor(final$AreaID)) # cong diem khu vuc, KV1: 1.5, KV2NT: 1, KV2: 0.5 
 
 
 

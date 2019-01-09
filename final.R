@@ -273,8 +273,8 @@ for (i in 2:5) {
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
 # There are 166 variables
-score[, 7:166] <- sapply(score[, 7:166], as.character)
-score[, 7:166] <- sapply(score[, 7:166], as.numeric)
+score[, 7:142] <- sapply(score[, 7:142], as.character)
+score[, 7:142] <- sapply(score[, 7:142], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode2 <- data.frame(sapply(score, mode))
 
@@ -327,9 +327,9 @@ for (i in 2:6) {
 
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
-# There are 166 variables
-score[, 7:166] <- sapply(score[, 7:166], as.character)
-score[, 7:166] <- sapply(score[, 7:166], as.numeric)
+# There are 203 variables
+score[, 7:203] <- sapply(score[, 7:203], as.character)
+score[, 7:203] <- sapply(score[, 7:203], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode3 <- data.frame(sapply(score, mode))
 
@@ -528,11 +528,11 @@ names(info)[-c(4:12)] -> id
 # MaHP is the code of courses.
 # Long format for all 9 genral courses
 info_l<- reshape(info, 
-             varying = MaHP,
-             v.names = "score",
-             timevar = "MaHP", 
-             times = MaHP, 
-             direction = "long")
+                 varying = MaHP,
+                 v.names = "score",
+                 timevar = "MaHP", 
+                 times = MaHP, 
+                 direction = "long")
 
 # l <- reshape(hsb2, 
 #              varying = c("read", "write", "math", "science", "socst"), 

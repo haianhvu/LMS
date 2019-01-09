@@ -125,10 +125,18 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 
 # Delete the DC major of this student
 finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
-sum(duplicated(fullstudent2$MSSV))
+sum(duplicated(fullstudent2$MSSV)
+sum(duplicated(finalstudent$MSSV))
+
+# ------- Merge with data General Full Score -------- Do some Factor analysis ----
+# finalstudent <- merge(finalstudent, full_general_score, by = "MSSV" )
+# sum(duplicated(finalstudent$MSSV))
+# b <- data.frame(names(finalstudent))
+# a <- finalstudent[,c(1:8,128:138)] 
+# write_dta(a, "factor.dta")
 
 
-#-------------- Grade import -------------------
+#-------------- Average Grade import -------------------
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
 
@@ -347,7 +355,6 @@ levels(as.factor(final$ProvinceID))
 levels(as.factor(final$PriorityID))   # nhom uu tien 1 cong 2 diem, nhom uu tien 2 cong 1 diem
 levels(as.factor(final$PriorityName)) # 3 la khong uu tien, 1 la uu tien 1 
 levels(as.factor(final$AreaID)) # cong diem khu vuc, KV1: 1.5, KV2NT: 1, KV2: 0.5 
-
 
 
 # Export to stata

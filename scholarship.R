@@ -106,7 +106,7 @@ no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
 
 # Check again using another merge
 fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
-sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi?
+sum(is.na(fullstudent2$STT)) # 40 cases do not appear in diemthi?
 diff <- setdiff(fullstudent2[,c(5:8,13:15)],fullstudent[,c(1:4,10,12,14)])
 length(diff$MSSV) # Diff is 0: no difference
 setdiff(fullstudent2$MSSV,fullstudent$MSSV)
@@ -132,7 +132,7 @@ sum(duplicated(finalstudent$MSSV))
 # finalstudent <- merge(finalstudent, full_general_score, by = "MSSV" )
 # sum(duplicated(finalstudent$MSSV))
 # b <- data.frame(names(finalstudent))
-# a <- finalstudent[,c(1:8,128:138)] 
+# a <- finalstudent[,c(1:8,128:139)] 
 # write_dta(a, "factor.dta")
 
 
@@ -157,15 +157,15 @@ sum(duplicated(hk2$MSSV))
 
 # Drop duplicated data
 hk1a <- unique(hk1) ### 3182 students. Still having 5 MSSV duplicated
-sum(duplicated(hk1a$MSSV))
+sum(duplicated(hk1a$MSSV)) #Still having 5 MSSV duplicated
 hk1a[duplicated(hk1a$MSSV),][,1]
 hk1a <- hk1a[!(duplicated(hk1a$MSSV) | duplicated(hk1a$MSSV, fromLast = TRUE)),]
 
-hk2a <- unique(hk2) ### 3134. Still having 8 MSSV duplicated
-sum(duplicated(hk2a$MSSV))
+hk2a <- unique(hk2) ### 3134. 
+sum(duplicated(hk2a$MSSV)) # Still having 8 MSSV duplicated
 hk2a[duplicated(hk2a$MSSV),][,1]
 
-# Delete Students of BI, AV, AE major
+# Delete Students of BI, AV, AE major: 2839 students
 removelist <- c('AV', "AE", 'BI')
 hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
 # This is the "Nhom 4" Scholarship: 7.77 / 79
@@ -173,13 +173,13 @@ hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
 ###### Tabula
 table(hk1final[hk1final$Ä.iá.fm.TBCHT >= 7.77,]$Xáº.p.loáº.i.rÃ.n.luyá..n)
 table(hk1final[hk1final$Ä.iá.fm.rÃ.n.luyá..n >= 79,]$Xáº.p.loáº.i.há..c.táº.p)
-addmargins(a)
-addmargins(b)
+# addmargins(a)
+# addmargins(b)
 
 test <- hk1final[hk1final$Ä.iá.fm.TBCHT >= 7.77 & hk1final$Xáº.p.loáº.i.rÃ.n.luyá..n >= 79,]
 
 
-# Merge Scholarship Receiver data with Academic Achievement data
+# Merge Scholarship Receiver data with Academic Achievement data: 2839
 final_kkht <- merge(hk1final, KKHT42, by = "MSSV", all.x=TRUE)
 sum(final_kkht$Ä.iá.fm.TBCHT == final_kkht$dtbhb)
 # test for data of 2 datasets coincide in AGP
@@ -197,11 +197,11 @@ a <- final_kkht[c(1:4,14:16,5,13,7,9,17,18,21:24,26)]
 # 31161025367,31161026922,31161023496,.... no scholarship
 h7.77 <- a[a$Ä.iá.fm.TBCHT >= 7.77,]
 no_scholarship3 <- h7.77[is.na(h7.77$`%HTHT+KKHT`),]
-no_scholarship1 <- a[a$Ä.iá.fm.TBCHT >= 7.77,][is.na(a$`%HTHT+KKHT`),]
-no_scholarship2 <- no_scholarship1[!is.na(no_scholarship1$MSSV),]
-setdiff(no_scholarship2,no_scholarship3)
+no_scholarship1 <- a[a$Ä.iá.fm.TBCHT >= 7.77,][is.na(a$`%HTHT+KKHT`),] # 12 students have no scholarship
+no_scholarship2 <- no_scholarship1[!is.na(no_scholarship1$MSSV),] # 12 students
+setdiff(no_scholarship2,no_scholarship3) # Check lai xem 2 cach tren co khac nhau khong.
 
-# There are 12 students having no scholarship, check them in scholarship HHHT
+# There are 12 students having no scholarship, check them in scholarship HTHT
 merge <- merge(no_scholarship2,HTHT42, by = "MSSV")
 # only 1 student, but her AGP is quite different while DRL is not. 
 # Reason: maybe she retake the test.
@@ -209,7 +209,7 @@ merge <- merge(no_scholarship2,HTHT42, by = "MSSV")
 # Eliminate all 12 students out of data, and we will have a good data that 
 # ensures all students having AGP higher or equal 7.77 will receive the scholarship.
 final_kkht2 <- final_kkht[! final_kkht$MSSV %in% no_scholarship2$MSSV,]
-# 2839 - 12 = 2837
+# 2839 - 12 = 2827
 
 # Rearrange columns to be easier to analyze
 final_kkht3 <- final_kkht2[c(1:4,14:16,6,7,9,10,17,18,5,13,20:27)]
@@ -227,7 +227,7 @@ a <- subset(final_kkht3,Lá..p == Lop)
 removelist <- c('ADC', "IBC", "FNC","KNC", "KIC", "AG","KC","TF","TD","AV", "AE", "BI")
 test <- final_kkht3[ grepl(paste(removelist, collapse="|"), final_kkht3$Lá..p), ]
 # Have to remove 24 students, so only 2803 available
-final_kkht4 <- setdiff(final_kkht3, test)
+final_kkht4 <- setdiff(final_kkht3, test) # 2803 students
 length(final_kkht4[final_kkht4$Ä.iá.fm.TBCHT >= 7.77,][,1])
 # 287 students have scholarship of KKHT
 
@@ -262,7 +262,7 @@ final$hocbong <- ifelse(is.na(final$sotien),0,1)
 sum(final$hocbong) # 287 KKHT scholarships: correct
 final <- final[order(final$tbht, decreasing=TRUE),]
 
-# check diemthi of 2801 students of final data, are they A1 exam group?
+# check diemthi of 2801 (2721) students of final data, are they A1 exam group?
 test1 <- merge(diemthi, final, by = "MSSV", all.y=TRUE)
 test2 <- merge(diemthi, final, by = "MSSV")
 test <- setdiff(test1,test2)
@@ -297,15 +297,15 @@ curve(dnorm(x, mean=mean(final[final$Khoi == "D01",]$tbht), sd=sd(final[final$Kh
 
 # Test mean of AGP different btw KhoiThi
 sum(is.na(final$tbht)) # every students have tbht
-sum(is.na(final[final$Khoi == "A00",]$tbht)) # 18, not everyone has KhoiThi
-sum(is.na(final[final$Khoi == "A01",]$tbht)) # 18
-sum(is.na(final[final$Khoi == "D01",]$tbht)) # 18, So only 18 students do not have KhoiThi
+sum(is.na(final[final$Khoi == "A00",]$tbht)) # 10, not everyone has KhoiThi
+sum(is.na(final[final$Khoi == "A01",]$tbht)) # 10
+sum(is.na(final[final$Khoi == "D01",]$tbht)) # 10, So only 18 students do not have KhoiThi
 
-sum(is.na(final[final$Khoi == "A00",]$DM1)) # 24
+sum(is.na(final[final$Khoi == "A00",]$DM1)) # 16
 #a <- final[final$Khoi == "A00" & is.na(final$DM1),]  # 7 studetns
 #b <- final[is.na(final$Khoi),]                       # 18 students
-sum(is.na(final[final$Khoi == "A01",]$DM1)) # 18
-sum(is.na(final[final$Khoi == "D01",]$DM1)) # 18
+sum(is.na(final[final$Khoi == "A01",]$DM1)) # 10
+sum(is.na(final[final$Khoi == "D01",]$DM1)) # 10
 
 #
 a <- setdiff(final$ngaysinh,final$NgaySinh)
@@ -313,16 +313,16 @@ b <- setdiff(final$ngaysinh,final$`Ngay sinh`)
 levels(as.factor(final$Nganh))
 names(final)[64] <- "doanvien"
 
-delete <- c(5:7,11,12,14,30:32,34,39:41,43:45,47,49:50,52,59:62,65,69,74,76:81,87:93,95,98,99:107,114,116:143)
+delete <- c(5:7,11,12,14,30:32,34,39:41,43:45,47,49:50,52,59:62,65,69,74,76:81,87:93,95,98,99:107,114,116:143,148,149,162,163)
 final <- final[, - delete]
 
 names(final)[c(7:8,25:27,30,31,34,35,37,38,46,47,49,50)] <- c("renluyen1","renluyen2","mon1","mon2","mon3",
                              "noisinh", "gioitinh", "tongiao","thuongtru",
                              "tinh", "maQH","namtuyensinh","soBD","namtotnghiep",
-                             "nhaphoc")
-names(final)[c(51:53,54,58:60,62,64)] <- c("MaLoaiSV","LoaiSV","matinhtrang","FatherOccupation","TenKhoa"
+                             "ngaynhaphoc")
+names(final)[c(51:53,54,58:60,62,64,79)] <- c("MaLoaiSV","LoaiSV","matinhtrang","FatherOccupation","TenKhoa"
                                   , "MaNganh","NganhHoc","ChuongTrinh",
-                                  "MaLopDC")
+                                  "MaLopDC","nomajor")
 
 # Merge with HK2 dataset
 hk2a <- hk2a[,c(1,6,7,9)]

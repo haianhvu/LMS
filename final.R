@@ -368,7 +368,7 @@ full_general_score[,c(1,5:6)] <- NULL
 # 66 duplicated observations ==> 33 students study 2 majors.
 # This is bigger than 17  because some of them study CTTT and CTCLC or CTR
 dup <- full_general_score[duplicated(full_general_score$MSSV) | duplicated(full_general_score$MSSV, fromLast = TRUE),]
-dup$no.major <- 2
+dup$nomajor <- 2
 dup <- dup[order(dup$MSSV),]
 dup1 <- dup[seq(1,66,by=2),]
 dup2 <- dup[seq(2,66,by=2),]
@@ -378,7 +378,7 @@ dup1$highqualtymajor<-ifelse((dup1$highqualtymajor==dup1$highqualtymajor.1)&(dup
 
 # Create dup_non data set that only has students learning 1 major
 dup_non <- full_general_score[!(duplicated(full_general_score$MSSV) | duplicated(full_general_score$MSSV, fromLast = TRUE)),]
-dup_non$no.major <- 1
+dup_non$nomajor <- 1
 
 # Merge dup and dup_non to create data with unique records: 4115 = 4148 - 33
 full_general_score <- full_join(dup_non,dup1[,-c(19:20)])

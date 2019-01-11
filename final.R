@@ -203,25 +203,25 @@ gc2 <- dc[,2]
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
-test <- lapply(Files, function(x) read.csv(x))
+test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
-# Creat 26 score datasets for each of Majors
-for (i in 1:26) {
+# Creat 27 score datasets for each of Majors
+for (i in 1:27) {
   assign(paste("score",i, sep=""), data.frame(test[i])[-1,])
   assign(paste("zname",i, sep=""), data.frame(test[i])[1,])
 }
 
-# Combine 26 dataset into 1 dataset, there are 3070 students
+# Combine 26 dataset into 1 dataset, there are 3215 students
 score <- score1
-for (i in 2:26) {
+for (i in 2:27) {
   a <- data.frame(test[i])[-1,]
   score <- full_join(score,a)
 }
 
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
-score[, 7:505] <- sapply(score[, 7:505], as.character)
-score[, 7:505] <- sapply(score[, 7:505], as.numeric)
+score[, 7:522] <- sapply(score[, 7:522], as.character)
+score[, 7:522] <- sapply(score[, 7:522], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode1 <- data.frame(sapply(score, mode))
 
@@ -230,7 +230,7 @@ colnames(score)[1:6] <- c("STT","MSSV","Ho","Ten","DTB","XL")
 # Only keep scores of general courses in dataset gc
 # i.e. ignoring the French courses, 
 # which means ignoring students studying French major
-general_score <-  data.frame(score[,1:6],score[as.vector(gc$MaHP)])
+general_score <-  data.frame(score[,1:6],score[as.vector(gc$MaHP)]) # Trich xuat cot du lieu trong dataframe theo ten cot. 
 # general_score2 <-  data.frame(score[,1:6],score[as.vector(gc2$MaHP)])
 
 # # Choosing names of general classes 
@@ -242,12 +242,12 @@ general_score <-  data.frame(score[,1:6],score[as.vector(gc$MaHP)])
 # listclass <- general_class[7:18,2]
 
 
-# final data frame for general classes, 2842 (2922) students, but 24 (28)duplicated records
+# final data frame for general classes, 3215 students, but 34 duplicated records
 # Aim: delete observation having missing values.
 final_score <- general_score[rowSums(is.na(general_score[, -c(1:6)]))==0,]
 # final_score2 <- general_score[complete.cases(general_score[ , 7:15]),]
-# We found 28 duplicated observations in final_score
-# ==> 14 students study 2 majors
+# We found 34 observations appearing 2 times in final_score
+# ==> 17 students study 2 majors
 test <- final_score[duplicated(final_score$MSSV) | duplicated(final_score$MSSV, fromLast = TRUE),]
 
 # -----------Chuong Trình Riêng --------------------
@@ -255,24 +255,24 @@ test <- final_score[duplicated(final_score$MSSV) | duplicated(final_score$MSSV, 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTR")
 
 Files2 <- list.files(pattern="*.csv")
-test <- lapply(Files2, function(x) read.csv(x))
+test <- lapply(Files2, function(x) read.csv(x)) # Co ca thay 4 file trong test
 
-# Creat 5 score datasets for each of Majors
-for (i in 1:5) {
+# Creat 4 score datasets for each of Majors
+for (i in 1:4) {
   assign(paste("score",i, sep=""), data.frame(test[i])[-1,])
   assign(paste("yname",i, sep=""), data.frame(test[i])[1,])
 }
 
-# Combine 5 dataset into 1 dataset, there are 334 students
+# Combine 4 datasets into 1 dataset, there are 334 students
 score <- score1
-for (i in 2:5) {
+for (i in 2:4) {
   a <- data.frame(test[i])[-1,]
   score <- full_join(score,a)
 }
 
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
-# There are 166 variables
+# There are 142 variables
 score[, 7:142] <- sapply(score[, 7:142], as.character)
 score[, 7:142] <- sapply(score[, 7:142], as.numeric)
 score[,5] <- as.numeric(score[,5])
@@ -295,12 +295,12 @@ general_score2 <-  data.frame(score[,1:6],score[as.vector(gc$MaHP)])
 # Create dummy variable 1 for theses classes
 general_score2$specialmajor <- 1
 
-# final data frame for general classes, 238 (301) students
+# final data frame for general classes, 189 students
 # Aim: deleting observations having missing values
 final_score2 <- general_score2[rowSums(is.na(general_score2[, -c(1:6)]))==0,]
 #final_score2 <- general_score[complete.cases(general_score[ , 7:18]),]
 
-# 2 duplicated observations ==> 1 students studies 2 majors
+# 2 duplicated observations ==> 0 students studies 2 majors
 test2 <- final_score2[duplicated(final_score2$MSSV) | duplicated(final_score2$MSSV, fromLast = TRUE),]
 
 
@@ -366,7 +366,7 @@ full_general_score$highqualtymajor<-ifelse(is.na(full_general_score$highqualtyma
 full_general_score[,c(1,5:6)] <- NULL
 
 # 66 duplicated observations ==> 33 students study 2 majors.
-# This is bigger than 14 + 1 because some of them study CTTT and CTCLC or CTR
+# This is bigger than 17  because some of them study CTTT and CTCLC or CTR
 dup <- full_general_score[duplicated(full_general_score$MSSV) | duplicated(full_general_score$MSSV, fromLast = TRUE),]
 dup$no.major <- 2
 dup <- dup[order(dup$MSSV),]

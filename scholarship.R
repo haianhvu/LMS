@@ -125,7 +125,7 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 
 # Delete the DC major of this student
 finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
-sum(duplicated(fullstudent2$MSSV)
+sum(duplicated(fullstudent2$MSSV))
 sum(duplicated(finalstudent$MSSV))
 
 # ------- Merge with data General Full Score -------- Do some Factor analysis ----

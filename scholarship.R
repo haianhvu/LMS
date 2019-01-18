@@ -97,7 +97,7 @@ studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
 names(studentinfo)[1] <- c("MSSV")
 names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
 
-# Merge 2 data sets
+# Merge 2 data sets: diemthi and studentinfo
 fullstudent <- merge(diemthi, studentinfo, by = "MSSV", all=TRUE)
 
 # Diemthi 4943 while fullstudent 4983, why having more 40 cases?
@@ -128,7 +128,9 @@ finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=
 sum(duplicated(fullstudent2$MSSV))
 sum(duplicated(finalstudent$MSSV))
 
-# ------- Merge with data General Full Score -------- Do some Factor analysis ----
+# ------- Merge with data General Full Score 
+# Finalstudent2: 4983 students, Full_gneral_score: 4115 students
+#-------- Do some Factor analysis ----
 # finalstudent <- merge(finalstudent, full_general_score, by = "MSSV" )
 # sum(duplicated(finalstudent$MSSV))
 # b <- data.frame(names(finalstudent))
@@ -185,7 +187,7 @@ sum(final_kkht$Ä.iá.fm.TBCHT == final_kkht$dtbhb)
 # test for data of 2 datasets coincide in AGP
 final_kkht$a <- ifelse(is.na(final_kkht$Stt),-1,final_kkht$Ä.iá.fm.TBCHT == final_kkht$dtbhb)
 test <- final_kkht[final_kkht$a==0,] #only one case has problem, but just typo
-# Correct typo by AGP of P.DT&QLSV
+# Correct typo by AGP of P.DT&QLSV, i.e. take AGP from column of P.DTQLSV.
 
 # Sort data to check AGP higher than 7.77
 final_kkht <- final_kkht[order(final_kkht$Ä.iá.fm.TBCHT, decreasing=TRUE),]
@@ -245,7 +247,10 @@ names(final_kkht4)[c(2:4,8:10,16:19,20:22)] <- c("ho","ten","ngaysinh","tinchi",
 
 
 # ----------------- Combine data ---------------
-# Merge data: info + diemthi data and final_kkht4 data 
+# Merge data: info + diemthidauvao data: and final_kkht4 data:2803 
+# info + diemthidauvao = finalstudent: 4982 students
+# info + diemthidauvao + diem dai cuong = 4115 students
+
 final_full_kkht1 <- merge(final_kkht4, finalstudent, by = "MSSV", all.x=TRUE)
 final_full_kkht2 <- merge(final_kkht4, finalstudent, by = "MSSV")
 dif <- setdiff(final_full_kkht1,final_full_kkht2)
@@ -280,8 +285,10 @@ only_htht42 <- HTHT42[! HTHT42$MSSV %in% twosch,] # 162 -18 = 144 observations
 intersect(a$MSSV,KKHT$MSSV) # Check again, it is ok
 # Delete observations receiving HTHT only
 final <- final[! final$MSSV %in% only_htht42$MSSV,] 
-# Final number is 2674 while 2801 - 144 = 2657
+# Final number is 2674 while 2801 - 144 = 2657. 
 # Reason: some students among 144 students are eliminated early, e.g. HPR, CLC
+# If merge with full_general_score as very above command, 2594 students.
+# 2674 - 2594 = 80: may be this is a CTR or CLC ?
 
 #-------------- Some Analysis -------------
 table(final$dacap) # How many students have received other scholarship: 0

@@ -92,7 +92,7 @@ fulldata<-unique(full_data)
 # #no_student2 <- unique(data$student)
 
 # Create class cluster id
-full_data <- transform(fulldata,id=as.numeric(factor(classcode)))
+full_data <- transform(full_data,id=as.numeric(factor(classcode)))
 
 
 #remove object in R
@@ -105,10 +105,10 @@ full_data <- transform(fulldata,id=as.numeric(factor(classcode)))
 #------ Some descriptive statistics for the datasets --------
 
 # # number of time each course was given in the data student
-# unique(data$course) -> courselist
-# length(courselist)
+# unique(full_data$course) -> courselist    
+# length(courselist)                          # 61 courses
 # dim(courselist)=c(61,1)
-# table(data$course)->tab
+# table(full_data$course) -> tab              # number of appearence of each course
 # data.frame(tab) -> times_for_course
 # dim(times_for_course)
 # 
@@ -159,6 +159,8 @@ setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
 
 # Load data into R
 giangvien1 <- read.csv("11.06-giangvienDC.csv", stringsAsFactors=FALSE)
+# giangvien1 is the data of teachers of general_class.
+# at the beginning, I think general_class is 12 classes. (but it is only )
 names(giangvien1$ï..MaHP) <- c("MaHP") # Not work
 names(giangvien1[,1]) <- "MaHP" # Not work
 names(giangvien1)[1]<-"MaHP"
@@ -170,14 +172,14 @@ names(giangvien1)[1]<-"MaHP"
 #giangvien1 <- giangvien1[,-1]
 giangvien1$MaHP<-NULL
 
-# Merging Lecturers' information with hk data, 4062 observations
+# Merging Lecturers' information with hk data, 4301 observations
 # It should be equal to the no. of obersvation of general classes in hk data
 # because giangvien1 is the data of general classes
 # full_hk_test <- full_join(giangvien1,hk, by=c("Khoa","BoMon","MaHP","MaCBGD"))
 # Merging above is wrong
 full_hk <- merge(hk, giangvien1, by.x = c("Khoa","BoMon","MaCBGD"), by.y = c("Khoa","BoMon","MaCBGD") )
 
-# Keeping only lecturers of general classes, 4062.
+# Keeping only lecturers of general classes, 4301.
 # Infact, the no. of observation of this dataset should equal the full_hk dataset 
 full_general_hk <- full_hk[rowSums(is.na(full_hk[, c("TrinhDo","ChucDanh","LanhDao","NamSinh","GioiTinh","X")]))!=6,]
 remove(full_hk)

@@ -392,6 +392,7 @@ full_general_score <- full_join(dup_non,dup1[,-c(19:20)])
 # sum(ifelse(full_general_score$highqualtymajor==0 & full_general_score$specialmajor==0,1,0))
 
 
+
 #-------------- Student Info ---------------
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")

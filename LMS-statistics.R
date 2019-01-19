@@ -443,11 +443,10 @@ lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","coursecode"), all.x = TRUE)
 lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","coursecode"))
 
 # Check the number of class each student study in lmsfinal2
-test <- transform(lmsfinal2, group=as.numeric(factor(MSSV)))
-table(test$group)
-
-test$totalLMSclass <- aggregate(group ~ MSSV, data=test,
+lmsfinal2 <- transform(lmsfinal2, group=as.numeric(factor(MSSV)))
+table(lmsfinal2$group) # students have different number of LMS class
+# Create the variable counting the number of LMS classes
+a<- aggregate(group ~ MSSV, data=lmsfinal2,
                                 FUN = function(x){NROW(x)})
-
-
-
+names(a)[2] <- "totalLMSclass"
+lmsfinal2 <- merge(lmsfinal2,a,by="MSSV")

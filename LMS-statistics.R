@@ -448,3 +448,6 @@ table(test$group)
 
 test$totalLMSclass <- aggregate(group ~ MSSV, data=test,
                                 FUN = function(x){NROW(x)})
+
+
+

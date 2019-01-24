@@ -12,7 +12,7 @@ rm(list = ls())
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
 
-# Import data into R
+# Import data into R: LMS from 10/2016 to 10/2017
 data <- read_delim(file = "Thong_ke_LMS_K42.csv", delim=',')
 
 # Check R read file correctly or not by using Excel and import csv file
@@ -27,7 +27,7 @@ a <- substr(data$`Sinh viên`,1,11)
 full_data <- cbind(a,data)
 names(full_data)[1] <- "MSSV"
 
-# import data into R
+# import data into R: schdule of 3 semester: 10/2016 - 3/2017
 hkc2016 <- read_csv("HKC2016.csv",col_types = cols(MaHP = "c"))
 hkc2017 <- read_csv("HKC2017.csv",col_types = cols(MaHP = "c"))
 hkd2017 <- read_csv("HKd2017.csv",col_types = cols(MaHP = "c"))
@@ -163,10 +163,10 @@ full_data <- transform(fulldata,id=as.numeric(factor(classcode)))
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
 
-# Load data into R
+# Load data into R: data giangvien created by Thanh
 giangvien1 <- read.csv("11.06-giangvienDC.csv", stringsAsFactors=FALSE)
 # giangvien1 is the data of teachers of general_class.
-# at the beginning, I think general_class is 12 classes. (but it is only )
+# at the beginning, I think general_class is 12 classes. (but it is only 9)
 names(giangvien1$ï..MaHP) <- c("MaHP") # Not work
 names(giangvien1[,1]) <- "MaHP" # Not work
 names(giangvien1)[1]<-"MaHP"
@@ -185,12 +185,17 @@ giangvien1$MaHP<-NULL
 # Merging above is wrong
 test <- merge(hk,giangvien1,by=c("Khoa","BoMon","MaCBGD"),all=TRUE) # 10089 observations
 # i.e. all teachers have their classes in hk data.
+# Therefore, we confidently merge data HK (10089 obs) with data of GiangVien
+# Note: here, we only keep matched data, it means only data of 
+# teacher and HK of general courses (12 courses). So only 4301 obs
 full_hk <- merge(hk, giangvien1, by.x = c("Khoa","BoMon","MaCBGD"), by.y = c("Khoa","BoMon","MaCBGD") )
 # 4301 observations
 
 # Keeping only lecturers of general classes, 4301.
-# Infact, the no. of observation of this dataset should equal the full_hk dataset 
 full_general_hk <- full_hk[rowSums(is.na(full_hk[, c("TrinhDo","ChucDanh","LanhDao","NamSinh","GioiTinh","X")]))!=6,]
+# Infact, the no. of observation of this dataset should equal the full_hk dataset
+# because information of TrinhDo, ChucDanh, ... only appear for 
+# general course teacher. Major course do not have this information
 #remove(full_hk)
 
 # # Count no. of general classes using LMS
@@ -200,6 +205,7 @@ full_general_hk <- full_hk[rowSums(is.na(full_hk[, c("TrinhDo","ChucDanh","LanhD
 # ------ Extract the weight of each classes (the number of credits of each class) ------
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
+# Here, general courses only have 9 courses
 dc <- read_csv("daicuong2.csv")
 names(dc)[2:4] <- c("MaHP","Name","weight")
 weight <- dc[!grepl("FRE", dc$MaHP),c(2,4)]
@@ -208,9 +214,10 @@ gc <- weight[,1]
 # Note: some of them learn French (not really)
 gc2 <- dc[,2]
 
-
-# full_hk has information of classes (classize, time, ...) and information
+# full_general_hk has information of classes (classize, time, ...) and information
 # of teachers. So we can now merge this data with LMS data named full_data
+# Note: only general classes and general teachers are included 
+# in full_general_hk. So lmsfull only for general course
 lmsfull <- merge(full_data, full_general_hk, by = "classcode", all.x = TRUE)
 
 # Some classes has two different records due to change the lecture time
@@ -226,6 +233,9 @@ c <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),]  # 3970
 
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
+# Note: the information includes all of score of students of HK1, HK2, HK3
+# so we firstly imput all of data, and then we only use gc$MaHP to keep
+# only 9 general courses. So the final data only has general_course
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 
@@ -433,7 +443,7 @@ lmsfull$coursecode <- substr(lmsfull$classcode,5,13)
 # check coursecode is the same as MaHP. 
 sum(isTRUE(lmsfull$MaHP == lmsfull$coursecode)) 
 #Yes they are the sam, so we use MaHP and change the name
-names(lmsfull)[c(29,57)] <- c("coursecode","Coursecode")
+names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
 
 # merge long_score and lmsfull data
 lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","coursecode"), all.x = TRUE)
@@ -450,3 +460,33 @@ a<- aggregate(group ~ MSSV, data=lmsfinal2,
                                 FUN = function(x){NROW(x)})
 names(a)[2] <- "totalLMSclass"
 lmsfinal2 <- merge(lmsfinal2,a,by="MSSV")
+
+# How many observations do not have LMS class
+sum(is.na(lmsfinal2$LMS)) # 1110
+sum(!is.na(lmsfinal2$LMS))  # 10949 = 12059 - 1110
+
+# Check score variable is missing and calculate Mean Difference
+sum(is.na(lmsfinal2$score)) # 0 missing values
+sum(is.na(lmsfinal2$TietLMS)) # 0 missing values
+lmsfinal2$lms <- ifelse(is.na(lmsfinal2$LMS),0,1)
+effect <- lm(score ~ lms , data=lmsfinal2)
+effect
+summary(effect)    # "naive estimator" is significant with negative sign
+
+# check effect for each course
+levels(factor(lmsfinal2$coursecode)) # only 7 courses, why?
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ENG513001",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ENG513002",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ECO501001",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ECO501002",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ACC507001",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "PML510001",]))
+summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "PML510002",]))
+
+# check complete observation in data
+lmsfinal2[,c(64,65)] <- NULL
+lmsfinal2["X"] <- NULL
+sum(complete.cases(lmsfinal2))   # 10694 on 12059
+# check why they are not competed
+a <- lmsfinal2[!complete.cases(lmsfinal2),]
+a[,48] <- NULL

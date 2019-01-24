@@ -451,8 +451,19 @@ lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","coursecode"), all.x = TRUE)
 # (due to they are not general course)
 # merge and keep only matched data: 12059
 lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","coursecode"))
+lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL
+
+# check duplicated class of teacher and students
+sum(duplicated(lmsfinal2[,c(1,3,25)]))  # 3055. want to know which student and class
+a <- lmsfinal2[duplicated(lmsfinal2[,c(1,3,25)]) | duplicated(lmsfinal2[,c(1,3,25)], fromLast = TRUE),]
+# Note: 6018 observations which inlcudes 1 original and some duplicated
+# e.g: appearing 3 times = 1 original + 2 duplicated
+# some students appear 2 times, some appear 3 times
 
 # Check the number of class each student study in lmsfinal2
+# They infact have 2 or 3 LMS class for the same course because they
+# have exercise class or because the schedule seperates one class into
+# 2 parts because of innovation.
 lmsfinal2 <- transform(lmsfinal2, group=as.numeric(factor(MSSV)))
 table(lmsfinal2$group) # students have different number of LMS class
 # Create the variable counting the number of LMS classes
@@ -461,32 +472,34 @@ a<- aggregate(group ~ MSSV, data=lmsfinal2,
 names(a)[2] <- "totalLMSclass"
 lmsfinal2 <- merge(lmsfinal2,a,by="MSSV")
 
+# Drop duplicated observation
+# But before that, need to determined TietLMS for duplicated classes.
+lmsfinal2 <- lmsfinal2[order(lmsfinal2$MSSV),]
+# infact, all of duplicated class have the same TietLMS?
+lmsfinal3 <- lmsfinal2[!duplicated(lmsfinal2[,c(1:3,25,49)]),] # 9004 observations
+
 # How many observations do not have LMS class
-sum(is.na(lmsfinal2$LMS)) # 1110
-sum(!is.na(lmsfinal2$LMS))  # 10949 = 12059 - 1110
+sum(is.na(lmsfinal3$LMS)) # 719 no LMS
+sum(!is.na(lmsfinal3$LMS))  # 8285 = 9004 - 719: having LMS
 
 # Check score variable is missing and calculate Mean Difference
-sum(is.na(lmsfinal2$score)) # 0 missing values
-sum(is.na(lmsfinal2$TietLMS)) # 0 missing values
-lmsfinal2$lms <- ifelse(is.na(lmsfinal2$LMS),0,1)
-effect <- lm(score ~ lms , data=lmsfinal2)
+sum(is.na(lmsfinal3$score)) # 0 missing values
+sum(is.na(lmsfinal3$TietLMS)) # 0 missing values
+lmsfinal3$lms <- ifelse(is.na(lmsfinal3$LMS),0,1)
+effect <- lm(score ~ lms , data=lmsfinal3)
 effect
 summary(effect)    # "naive estimator" is significant with negative sign
 
 # check effect for each course
-levels(factor(lmsfinal2$coursecode)) # only 7 courses, why?
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ENG513001",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ENG513002",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ECO501001",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ECO501002",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "ACC507001",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "PML510001",]))
-summary(lm(score ~ lms , data=lmsfinal2[lmsfinal2$coursecode == "PML510002",]))
+levels(factor(lmsfinal3$coursecode)) # only 7 courses, why?
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513001",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513002",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501001",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501002",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ACC507001",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510001",]))
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510002",]))
 
 # check complete observation in data
-lmsfinal2[,c(64,65)] <- NULL
-lmsfinal2["X"] <- NULL
-sum(complete.cases(lmsfinal2))   # 10694 on 12059
-# check why they are not competed
-a <- lmsfinal2[!complete.cases(lmsfinal2),]
-a[,48] <- NULL
+sum(complete.cases(lmsfinal3))   # 8096 of 9004
+# 

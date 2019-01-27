@@ -478,6 +478,10 @@ lmsfinal2 <- lmsfinal2[order(lmsfinal2$MSSV),]
 # infact, all of duplicated class have the same TietLMS?
 lmsfinal3 <- lmsfinal2[!duplicated(lmsfinal2[,c(1:3,25,49)]),] # 9004 observations
 
+# Recode some variable:
+lmsfinal3$GioiTinh <- ifelse(lmsfinal3$GioiTinh == "Nam",0,1)
+lmsfinal3$TrinhDo <- ifelse(lmsfinal3$TrinhDo == "Thac si",0,ifelse(lmsfinal3$TrinhDo == "Tien si",1,NA))
+
 # How many observations do not have LMS class
 sum(is.na(lmsfinal3$LMS)) # 719 no LMS
 sum(!is.na(lmsfinal3$LMS))  # 8285 = 9004 - 719: having LMS
@@ -492,14 +496,59 @@ summary(effect)    # "naive estimator" is significant with negative sign
 
 # check effect for each course
 levels(factor(lmsfinal3$coursecode)) # only 7 courses, why?
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513001",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513002",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501001",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501002",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ACC507001",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510001",]))
-summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510002",]))
+# reason: we only keep the teacher and the score of general course
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513001",])) # not sig
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ENG513002",])) # sig 5%, positive
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501001",])) # sig 2%, negative
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ECO501002",])) # sig 0%, negative
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "ACC507001",])) #
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510001",])) # sig 0%, negative
+summary(lm(score ~ lms , data=lmsfinal3[lmsfinal3$coursecode == "PML510002",])) #
 
 # check complete observation in data
 sum(complete.cases(lmsfinal3))   # 8096 of 9004
-# 
+# check treatment and control for PML510002 and ACC507001
+table(lmsfinal3[lmsfinal3$coursecode == "PML510002",]["lms"])
+table(lmsfinal3[lmsfinal3$coursecode == "ACC507001",]["lms"])
+
+# Include some variables:
+summary(lm(score ~ lms + download + Assignment + Quiz + Scorm
+           + Forum + Chat + SoSV + TietLMS + TrinhDo + NamSinh + GioiTinh
+           , data=lmsfinal3))
+
+# Cluster
+install.packages("lmtest")
+install.packages("multiwayvcov")
+library("lmtest")
+library(multiwayvcov)
+
+m1 <- lm(score ~ lms + download + Assignment + Quiz + Scorm
+   + Forum + Chat + SoSV + TietLMS + TrinhDo + NamSinh + GioiTinh
+   , data=lmsfinal3)
+
+vcov_class <- cluster.vcov(m1, lmsfinal3$id) # here is class id
+coeftest(m1, vcov_class) # not very significant
+
+vcov_stu <- cluster.vcov(m1, lmsfinal3$MSSV)
+coeftest(m1, vcov_stu) # very significant
+
+vcov_both <- cluster.vcov(m1, cbind(lmsfinal3$MSSV,lmsfinal3$id))
+coeftest(m1, vcov_both) # not very significant
+
+# Here, we include all of courses, so they may be diffrent in difficulty and exam
+# it is should seperated by course before run regression
+# or by group of courses that are factored: 
+r <- lmsfinal3[lmsfinal3$coursecode == "PML510001",]
+
+m1 <- lm(score ~ lms + download + Assignment + Quiz + Scorm
+         + Forum + Chat + SoSV + TietLMS + TrinhDo + NamSinh + GioiTinh
+         , data=r)
+
+vcov_class <- cluster.vcov(m1, r$id) # here is class id
+coeftest(m1, vcov_class) # not very significant
+
+vcov_stu <- cluster.vcov(m1, r$MSSV)
+coeftest(m1, vcov_stu) # very significant
+
+vcov_both <- cluster.vcov(m1, cbind(r$MSSV,r$id))
+coeftest(m1, vcov_both) # very significant             

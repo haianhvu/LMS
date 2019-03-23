@@ -50,7 +50,7 @@ hk <- unique(hk)
 # Use merge when we want to keep the matched values only (like inner join)
 # Note: merge can be used for right, left, and full joint
 # full_data <- merge(full_data,hk,by="classcode")
-fulldata<-unique(full_data)
+fulldata<-unique(full_data)    # fulldata is just data of LMS only
 
 
 # # Extract the classes of general stage
@@ -163,12 +163,13 @@ full_data <- transform(fulldata,id=as.numeric(factor(classcode)))
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
 
-# Load data into R: data giangvien created by Thanh
+# Load data into R: data giangvien created by Thanh 
+# (16 courses includes 4 course of Physics, so only 12 general courses)
 giangvien1 <- read.csv("11.06-giangvienDC.csv", stringsAsFactors=FALSE)
 # giangvien1 is the data of teachers of general_class.
 # at the beginning, I think general_class is 12 classes. (but it is only 9)
 names(giangvien1$ï..MaHP) <- c("MaHP") # Not work
-names(giangvien1[,1]) <- "MaHP" # Not work
+names(giangvien1[,1]) <- "MaHP" # Not work because this is just a vector, not dataframe
 names(giangvien1)[1]<-"MaHP"
 sapply(giangvien1,as.character)
 as.numeric(giangvien1$NamSinh)
@@ -184,12 +185,10 @@ giangvien1$MaHP<-NULL
 # full_hk_test <- full_join(giangvien1,hk, by=c("Khoa","BoMon","MaHP","MaCBGD"))
 # Merging above is wrong
 test <- merge(hk,giangvien1,by=c("Khoa","BoMon","MaCBGD"),all=TRUE) # 10089 observations
-# i.e. all teachers have their classes in hk data.
-# Therefore, we confidently merge data HK (10089 obs) with data of GiangVien
 # Note: here, we only keep matched data, it means only data of 
 # teacher and HK of general courses (12 courses). So only 4301 obs
 full_hk <- merge(hk, giangvien1, by.x = c("Khoa","BoMon","MaCBGD"), by.y = c("Khoa","BoMon","MaCBGD") )
-# 4301 observations
+# 4301 observations: characteristics of general teachers and classes
 
 # Keeping only lecturers of general classes, 4301.
 full_general_hk <- full_hk[rowSums(is.na(full_hk[, c("TrinhDo","ChucDanh","LanhDao","NamSinh","GioiTinh","X")]))!=6,]
@@ -205,7 +204,7 @@ full_general_hk <- full_hk[rowSums(is.na(full_hk[, c("TrinhDo","ChucDanh","LanhD
 # ------ Extract the weight of each classes (the number of credits of each class) ------
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
-# Here, general courses only have 9 courses
+# Here, general courses only have 11 courses including 2 courses of FRE
 dc <- read_csv("daicuong2.csv")
 names(dc)[2:4] <- c("MaHP","Name","weight")
 weight <- dc[!grepl("FRE", dc$MaHP),c(2,4)]
@@ -217,19 +216,22 @@ gc2 <- dc[,2]
 # full_general_hk has information of classes (classize, time, ...) and information
 # of teachers. So we can now merge this data with LMS data named full_data
 # Note: only general classes and general teachers are included 
-# in full_general_hk. So lmsfull only for general course
-lmsfull <- merge(full_data, full_general_hk, by = "classcode", all.x = TRUE)
+# in full_general_hk. So lmsfull only for general course.
+# Note: keep all of observation of full_general_hk because full_data
+# only has LMS of LMS class while not all of classes has LMS
+lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
+# 24585 observations
 
 # Some classes has two different records due to change the lecture time
 # but still having the same other characteristics: teacher, room, class size,...
 # check whether having classes that change teachers?
-a <- duplicated(lmsfull[,c(1,2,24)])
+a <- duplicated(lmsfull[,c(1,2,23)]) # column 1,2,23:classcode,MSSV,Teacher ID
 b <- duplicated(lmsfull[,c(1,2)])
 setdiff(a,b)   # 0 observations, so no classes that change teachers
 # note: some classes may be lectured by 2 teachers.
 
-# Therefore, we can drop 1 duplicated record of 1 observation
-c <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),]  # 3970 
+# Therefore, we can drop 1 duplicated record of each observation
+c <- lmsfull[duplicated(lmsfull[,c(1,2,23)]),]  # 4329 
 
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
@@ -433,6 +435,8 @@ reshape(full_general_score, direction = "long",
 # 4115*9 = 37035, matched to the number of records in long format
 
 # Create var coursecode for lmsfull data
+# Note: lmsfull data is just data inlcude all general classes and teachers.
+# some of these classes had LMS some did not.
 lmsfull$a <- sapply(lmsfull$classcode,nchar)
 table(data.frame(lmsfull$a))    # classcode length is: 13, 15, 16 characters 
 # check what course has code of 13, 16 characters
@@ -444,6 +448,40 @@ lmsfull$coursecode <- substr(lmsfull$classcode,5,13)
 sum(isTRUE(lmsfull$MaHP == lmsfull$coursecode)) 
 #Yes they are the sam, so we use MaHP and change the name
 names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
+
+# ------- Check LMS of hk data and LMS of IT-department data
+# chooselist <- gc[[1]]
+# gchk <- hk[ grepl(paste(chooselist, collapse="|"), hk$MaHP), ]
+# gchk$LMS <- ifelse(is.na(gchk$LMS),0,1)
+# Idea: TietLMS = 0 means no LMS, download is NA means no LMS (in lmsfull)
+lmsfull$itlms <- ifelse(is.na(lmsfull$download),0,1)
+lmsfull <- lmsfull[,c(1:47,49:58,48)]
+# Eliminiate duplicated observations of lmsfull because of NA in MSSV
+a <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
+
+# test which class has TietLMs but not having download information
+test <- lmsfull[lmsfull$itlms==0 & lmsfull$TietLMS!=0,]
+levels(as.factor(test$classcode)) # 172 factor levels: means 172 classes
+b <- test[!duplicated(test[,c("MaCBGD","classcode","MSSV")]),] # check: 172 too
+# only keep DHCQK42 of data b
+c <- b[b$KhoaHoc=="DHCQK42",] 
+# c is class of K42 that registered LMS but have no interaction with LMS.
+
+# Check classes using LMS but have no TietLMS
+test1 <- lmsfull[lmsfull$LMS=="X" & lmsfull$TietLMS==0,] #26825 observations
+nlevels(factor(test1$MSSV))  #3273 MSSV
+levels(factor(test1$TenTA))  # 18 courses
+
+# Check classes that do not uses LMS but havign TietLMS
+#test1 <- lmsfull[is.na(lmsfull$LMS) & ,]
+
+# check complete observations of lmsfull data
+#new_DF <- DF[rowSums(is.na(DF)) > 0,]
+#Df[Df=='NA'] <- NA
+test2 <- lmsfull[rowSums(is.na(lmsfull)) == ncol(lmsfull),] # 0
+
+
+#------------------------------------------------------------------
 
 # merge long_score and lmsfull data
 lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","coursecode"), all.x = TRUE)
@@ -539,6 +577,9 @@ coeftest(m1, vcov_both) # not very significant
 # it is should seperated by course before run regression
 # or by group of courses that are factored: 
 r <- lmsfinal3[lmsfinal3$coursecode == "PML510001",]
+
+unique(r$MSSV) 
+unique(r$id)
 
 m1 <- lm(score ~ lms + download + Assignment + Quiz + Scorm
          + Forum + Chat + SoSV + TietLMS + TrinhDo + NamSinh + GioiTinh

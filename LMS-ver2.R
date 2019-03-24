@@ -27,6 +27,16 @@ a <- substr(data$`Sinh viên`,1,11)
 full_data <- cbind(a,data)
 names(full_data)[1] <- "MSSV"
 
+# Before continuing, we only keep 9 General Classes of K42 ChinhQuy
+dc <- read_csv("daicuong2.csv")
+names(dc)[2:4] <- c("MaHP","Name","weight")
+weight <- dc[!grepl("FRE", dc$MaHP),c(2,4)]
+gc <- weight[,1]
+chooselist <- gc[[1]]
+names(full_data)[4] <- "MHP"
+a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MHP), ]
+full_data <- a
+
 # import data into R: schdule of 3 semester: 10/2016 - 3/2017
 hkc2016 <- read_csv("HKC2016.csv",col_types = cols(MaHP = "c"))
 hkc2017 <- read_csv("HKC2017.csv",col_types = cols(MaHP = "c"))
@@ -214,7 +224,7 @@ gc2 <- dc[,2]
 # Note: keep all of observation of full_general_hk because full_data
 # only has LMS of LMS class while not all of classes has LMS
 lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
-# 24585 observations: lms + hk of general course
+# 39116 observations of lms and hk of general course
 
 # Some classes has two different records due to change the lecture time
 # but still having the same other characteristics: teacher, room, class size,...
@@ -432,9 +442,12 @@ reshape(full_general_score, direction = "long",
 # Note: lmsfull data is just data inlcude all general classes and teachers.
 # some of these classes had LMS some did not.
 lmsfull$a <- sapply(lmsfull$classcode,nchar)
-table(data.frame(lmsfull$a))    # classcode length is: 13, 15, 16 characters 
-# check what course has code of 13, 16 characters
-table(lmsfull[lmsfull$a == 13 | lmsfull$a == 16, ]$course)
+table(lmsfull$a)   # classcode length is: 13, 14, 15, 16 characters 
+# check what course has code of 13,14,16 characters (note:15 is normal)
+table(lmsfull[lmsfull$a == 13, ]$course)
+table(lmsfull[lmsfull$a == 14, ]$course)
+table(lmsfull[lmsfull$a == 16, ]$course)
+table(lmsfull$KhoaHoc)
 # Mon Tieng Anh was lectured in 100 classes, so classcode has 16 characters
 # Others are course of IT, not taken into account in the calculation of AGP
 lmsfull$coursecode <- substr(lmsfull$classcode,5,13)
@@ -488,11 +501,12 @@ lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","coursecode"))
 lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL
 
 # check duplicated class of teacher and students
-sum(duplicated(lmsfinal2[,c(1,3,25)]))  # 3055. want to know which student and class
+sum(duplicated(lmsfinal2[,c(1,3,25)]))  # 3055(98007). want to know which student and class
 a <- lmsfinal2[duplicated(lmsfinal2[,c(1,3,25)]) | duplicated(lmsfinal2[,c(1,3,25)], fromLast = TRUE),]
-# Note: 6018 observations which inlcudes 1 original and some duplicated
+# Note: 6xxx (101676) observations which inlcudes 1 original and some duplicated
 # e.g: appearing 3 times = 1 original + 2 duplicated
 # some students appear 2 times, some appear 3 times
+# reason: classes are seperated into 2 parts due to the university reinnovation
 
 # Check the number of class each student study in lmsfinal2
 # They infact have 2 or 3 LMS class for the same course because they

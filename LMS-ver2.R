@@ -35,7 +35,7 @@ gc <- weight[,1]
 chooselist <- gc[[1]]
 names(full_data)[4] <- "MHP"
 a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MHP), ]
-full_data <- a
+full_data <- a      #10187 observation
 
 # import data into R: schdule of 3 semester: 10/2016 - 3/2017
 hkc2016 <- read_csv("HKC2016.csv",col_types = cols(MaHP = "c"))
@@ -224,7 +224,21 @@ gc2 <- dc[,2]
 # Note: keep all of observation of full_general_hk because full_data
 # only has LMS of LMS class while not all of classes has LMS
 lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
-# 39116 observations of lms and hk of general course
+# 17550 observations of lms and hk of general course
+table(lmsfull$KhoaHoc)
+# note: general courses here maybe taught for CQ, VB2, CLC, HPR, HPC, ...
+# reason: the hk data is data of all types of students, not CTTT of K42
+lmsfull <- lmsfull[lmsfull$KhoaHoc == "DHCQK42",] #11705
+# check observations with all NA values
+
+
+
+# NOTE: not all teacher has LMS, so in lmsfull data will have some
+# records that have missing values in MSSV, Download, Quiz. 
+# Therefore, must be carefull because some observations have 
+# all classcode, MSSV, MaCBGD while some only have 2 of them, i.e. 
+# classcode + MaCBGD (no MSSV) or MSSV + MaCBGD (no classcode) 
+# or classcode + MSSV (no MaCBGD)
 
 # Some classes has two different records due to change the lecture time
 # but still having the same other characteristics: teacher, room, class size,...
@@ -232,10 +246,13 @@ lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
 a <- duplicated(lmsfull[,c(1,2,23)]) # column 1,2,23:classcode,MSSV,Teacher ID
 b <- duplicated(lmsfull[,c(1,2)])
 setdiff(a,b)   # 0 observations, so no classes that change teachers
-# note: some classes may be lectured by 2 teachers.
+
+# note: some classes may be lectured by 2 teachers, but maybe we need to
+# check, but now we skip it for simplicity.
 
 # Therefore, we can drop 1 duplicated record of each observation
-c <- lmsfull[duplicated(lmsfull[,c(1,2,23)]),]  # 4329 
+c <- lmsfull[duplicated(lmsfull[,c(1,2,23)]),]
+d <- lmsfull[duplicated(lmsfull[,c(1,2,23)]) | duplicated(lmsfull[,c(1,2,23)], fromLast = TRUE),]  # 3350 
 # c,lmsfull contrain: lms + hk of general course
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
@@ -441,20 +458,30 @@ reshape(full_general_score, direction = "long",
 # Create var coursecode for lmsfull data
 # Note: lmsfull data is just data inlcude all general classes and teachers.
 # some of these classes had LMS some did not.
+lmsfull <- lmsfull[ grepl(paste(chooselist, collapse="|"), lmsfull$MaHP), ]
+# 10702 observ
 lmsfull$a <- sapply(lmsfull$classcode,nchar)
-table(lmsfull$a)   # classcode length is: 13, 14, 15, 16 characters 
-# check what course has code of 13,14,16 characters (note:15 is normal)
-table(lmsfull[lmsfull$a == 13, ]$course)
-table(lmsfull[lmsfull$a == 14, ]$course)
-table(lmsfull[lmsfull$a == 16, ]$course)
-table(lmsfull$KhoaHoc)
+table(lmsfull$a)   # classcode length is: 13,15,16 characters 
+# check what course has code of 13,15,16 characters (note:15 is normal)
+table(lmsfull[lmsfull$a == 13, ]$TenHP)
+table(lmsfull[lmsfull$a == 15, ]$TenHP)
+table(lmsfull[lmsfull$a == 16, ]$TenHP)
+table(lmsfull$KhoaHoc)    
+a <- lmsfull[is.na(lmsfull$KhoaHoc),]    # 0 observations
+b <- na.omit(a)                           # all of them have no any data
+lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]
+
 # Mon Tieng Anh was lectured in 100 classes, so classcode has 16 characters
 # Others are course of IT, not taken into account in the calculation of AGP
-lmsfull$coursecode <- substr(lmsfull$classcode,5,13)
-# check coursecode is the same as MaHP. 
-sum(isTRUE(lmsfull$MaHP == lmsfull$coursecode)) 
-#Yes they are the sam, so we use MaHP and change the name
-names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
+# lmsfull$coursecode <- substr(lmsfull$classcode,5,13)
+# sum(is.na(lmsfull$MaHP))     # 0 missing values
+# sum(is.na(lmsfull$coursecode))  # 0 missing value
+# check coursecode is the same as MaHP.
+#sum(isTRUE(lmsfull$MaHP == lmsfull$coursecode)) 
+# lmsfull$ma <- ifelse(lmsfull$MaHP == lmsfull$coursecode,0,1)
+# a <- lmsfull[is.na(lmsfull$ma),]
+# #Yes they are the sam, so we use MaHP and change the name
+# names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
 
 # ------- Check LMS of hk data and LMS of IT-department data
 # chooselist <- gc[[1]]
@@ -465,19 +492,25 @@ names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
 # teachers register LMS section, so no student log in into LMS portal
 lmsfull$itlms <- ifelse(is.na(lmsfull$download),0,1)
 lmsfull <- lmsfull[,c(1:47,49:59,48)]
-# Eliminiate duplicated observations of lmsfull because of NA in MSSV
-a <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
-# giam tu 39116 xuong con 34787
+# Eliminiate duplicated observations of lmsfull because of NA in MSSVl
+lmsfull <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
+# 7579 observations
+# b <- lmsfull[duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]) |
+#     duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")], fromLast = TRUE),]
+# c <- lmsfull[duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
+# giam tu 11521 xuong con 8354
 
 # test which class has TietLMs but not having download information
-test <- lmsfull[lmsfull$itlms==0 & lmsfull$TietLMS!=0,]
-levels(as.factor(test$classcode)) # 172 factor levels: means 172 classes
-b <- test[!duplicated(test[,c("MaCBGD","classcode","MSSV")]),] # check: 172 too
-# only keep DHCQK42 of data b
-c <- b[b$KhoaHoc=="DHCQK42",] # c is class of K42 that registered LMS but have no interaction with LMS.
+test <- lmsfull[lmsfull$itlms==0 & lmsfull$TietLMS!=0,] # 0 classes
+levels(as.factor(test$classcode))
+b <- test[!duplicated(test[,c("MaCBGD","classcode","MSSV")]),] # check: 0 too
+# # only keep DHCQK42 of data b
+# c <- b[b$KhoaHoc=="DHCQK42",] # c is class of K42 that registered LMS but have no interaction with LMS.
 
 # Check classes using LMS but have no TietLMS
-test1 <- lmsfull[lmsfull$LMS=="X" & lmsfull$TietLMS==0,] #26825 observations
+lmsfull[is.na(lmsfull$LMS),]$LMS <- 0
+test1 <- lmsfull[lmsfull$LMS=="X" & lmsfull$TietLMS==0,] #0 observations
+# note: maybe teachers registered LMS but do not use LMS to reduce lecture time
 nlevels(factor(test1$MSSV))  #3273 MSSV
 levels(factor(test1$TenTA))  # 18 courses
 

@@ -37,13 +37,15 @@ names(full_data)[4] <- "MHP"
 a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MHP), ]
 full_data <- a      #10187 observation
 
+fulldata<-unique(full_data)    # fulldata is just data of LMS only
+# Rename variables 1 to 4 from Vietnamese to English
+names(fulldata)[2:5] <- c("student","course","classcode","download")
+
 # import data into R: schdule of 3 semester: 10/2016 - 3/2017
 hkc2016 <- read_csv("HKC2016.csv",col_types = cols(MaHP = "c"))
 hkc2017 <- read_csv("HKC2017.csv",col_types = cols(MaHP = "c"))
 hkd2017 <- read_csv("HKd2017.csv",col_types = cols(MaHP = "c"))
 
-# Rename variables 1 to 4 from Vietnamese to English
-names(full_data)[2:5] <- c("student","course","classcode","download")
 
 # Rename key variable of 3 hk dataset for combining and merging
 names(hkc2016)[7] = "classcode"
@@ -52,8 +54,6 @@ names(hkd2017)[7] = "classcode"
 hk <- rbind(hkc2016,hkc2017,hkd2017)
 # Number of class schedule: 10089 = 2978 + 3761 + 3350
 hk <- unique(hk)
-
-fulldata<-unique(full_data)    # fulldata is just data of LMS only
 
 
 # # Extract the classes of general stage
@@ -225,13 +225,15 @@ gc2 <- dc[,2]
 # only has LMS of LMS class while not all of classes has LMS
 lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
 # 17550 observations of lms and hk of general course
-table(lmsfull$KhoaHoc)
+table(lmsfull$KhoaHoc)    # 11521 DHCQ K42
 # note: general courses here maybe taught for CQ, VB2, CLC, HPR, HPC, ...
 # reason: the hk data is data of all types of students, not CTTT of K42
 lmsfull <- lmsfull[lmsfull$KhoaHoc == "DHCQK42",] #11705
-# check observations with all NA values
-
-
+# check observations with all NA values: 184 records (184 + 11521 = 11705)
+# and delete them
+a <- lmsfull[is.na(lmsfull$KhoaHoc),]  # 184 observations
+a <- na.omit(a)     # 0 observation, so no any information for these 184 records
+lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]  # so, only keep 11521
 
 # NOTE: not all teacher has LMS, so in lmsfull data will have some
 # records that have missing values in MSSV, Download, Quiz. 
@@ -243,7 +245,7 @@ lmsfull <- lmsfull[lmsfull$KhoaHoc == "DHCQK42",] #11705
 # Some classes has two different records due to change the lecture time
 # but still having the same other characteristics: teacher, room, class size,...
 # check whether having classes that change teachers?
-a <- duplicated(lmsfull[,c(1,2,23)]) # column 1,2,23:classcode,MSSV,Teacher ID
+a <- duplicated(lmsfull[,c(1,2,24)]) # column 1,2,24:classcode,MSSV,Teacher ID
 b <- duplicated(lmsfull[,c(1,2)])
 setdiff(a,b)   # 0 observations, so no classes that change teachers
 
@@ -251,8 +253,9 @@ setdiff(a,b)   # 0 observations, so no classes that change teachers
 # check, but now we skip it for simplicity.
 
 # Therefore, we can drop 1 duplicated record of each observation
-c <- lmsfull[duplicated(lmsfull[,c(1,2,23)]),]
-d <- lmsfull[duplicated(lmsfull[,c(1,2,23)]) | duplicated(lmsfull[,c(1,2,23)], fromLast = TRUE),]  # 3350 
+c <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),]
+d <- lmsfull[duplicated(lmsfull[,c(1,2,24)]) | duplicated(lmsfull[,c(1,2,24)], fromLast = TRUE),]  # 3350 
+a <- lmsfull[!duplicated(lmsfull[,c(1,2,24)]),]   #7579 8355
 # c,lmsfull contrain: lms + hk of general course
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
@@ -491,7 +494,7 @@ lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]
 # NOte: there may be that some class do not announce it has LMS although
 # teachers register LMS section, so no student log in into LMS portal
 lmsfull$itlms <- ifelse(is.na(lmsfull$download),0,1)
-lmsfull <- lmsfull[,c(1:47,49:59,48)]
+lmsfull <- lmsfull[,c(1:47,49:58,48)]
 # Eliminiate duplicated observations of lmsfull because of NA in MSSVl
 lmsfull <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
 # 7579 observations

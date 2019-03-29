@@ -245,9 +245,11 @@ lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]  # so, only keep 11521
 # Some classes has two different records due to change the lecture time
 # but still having the same other characteristics: teacher, room, class size,...
 # check whether having classes that change teachers?
-a <- duplicated(lmsfull[,c(1,2,24)]) # column 1,2,24:classcode,MSSV,Teacher ID
-b <- duplicated(lmsfull[,c(1,2)])
+a <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),] # column 1,2,24:classcode,MSSV,Teacher ID
+b <- lmsfull[duplicated(lmsfull[,c(1,2)]),]
 setdiff(a,b)   # 0 observations, so no classes that change teachers
+setdiff(b,a)   # 0 observations
+identical(a,b)  # this means there is no class that changed teachers.
 
 # note: some classes may be lectured by 2 teachers, but maybe we need to
 # check, but now we skip it for simplicity.
@@ -255,8 +257,8 @@ setdiff(a,b)   # 0 observations, so no classes that change teachers
 # Therefore, we can drop 1 duplicated record of each observation
 c <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),]
 d <- lmsfull[duplicated(lmsfull[,c(1,2,24)]) | duplicated(lmsfull[,c(1,2,24)], fromLast = TRUE),]  # 3350 
-a <- lmsfull[!duplicated(lmsfull[,c(1,2,24)]),]   #7579 8355
-# c,lmsfull contrain: lms + hk of general course
+lmsfull1 <- lmsfull[!duplicated(lmsfull[,c(1,2,24)]),]   # 8354
+
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
 # Note: the information includes all of score of students of HK1, HK2, HK3
@@ -462,7 +464,11 @@ reshape(full_general_score, direction = "long",
 # Note: lmsfull data is just data inlcude all general classes and teachers.
 # some of these classes had LMS some did not.
 lmsfull <- lmsfull[ grepl(paste(chooselist, collapse="|"), lmsfull$MaHP), ]
-# 10702 observ
+# 10702 observ 
+# it is different from 11705 due to some classes that are not general
+# check:
+# y <- setdiff(lmsfull1,lmsfull)
+
 lmsfull$a <- sapply(lmsfull$classcode,nchar)
 table(lmsfull$a)   # classcode length is: 13,15,16 characters 
 # check what course has code of 13,15,16 characters (note:15 is normal)
@@ -493,7 +499,7 @@ lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]
 # Idea: TietLMS = 0 means no LMS, download is NA means no LMS (in lmsfull)
 # NOte: there may be that some class do not announce it has LMS although
 # teachers register LMS section, so no student log in into LMS portal
-lmsfull$itlms <- ifelse(is.na(lmsfull$download),0,1)
+lmsfull$itlms <- ifelse(is.na(lmsfull$download),,1)
 lmsfull <- lmsfull[,c(1:47,49:58,48)]
 # Eliminiate duplicated observations of lmsfull because of NA in MSSVl
 lmsfull <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
@@ -504,18 +510,24 @@ lmsfull <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
 # giam tu 11521 xuong con 8354
 
 # test which class has TietLMs but not having download information
-test <- lmsfull[lmsfull$itlms==0 & lmsfull$TietLMS!=0,] # 0 classes
-levels(as.factor(test$classcode))
-b <- test[!duplicated(test[,c("MaCBGD","classcode","MSSV")]),] # check: 0 too
-# # only keep DHCQK42 of data b
-# c <- b[b$KhoaHoc=="DHCQK42",] # c is class of K42 that registered LMS but have no interaction with LMS.
+test <- lmsfull[lmsfull$itlms==0 & lmsfull$TietLMS!=0,] # 20 classes
+levels(as.factor(test$TenHP))      # these 20 classes include: KT Vi Mo, ENG 1, ENG 2, Mac Lenin
+# check: 20 too
+b <- test[!duplicated(test[,c("MaCBGD","classcode","MSSV")]),] 
 
 # Check classes using LMS but have no TietLMS
 lmsfull[is.na(lmsfull$LMS),]$LMS <- 0
 test1 <- lmsfull[lmsfull$LMS=="X" & lmsfull$TietLMS==0,] #0 observations
 # note: maybe teachers registered LMS but do not use LMS to reduce lecture time
-nlevels(factor(test1$MSSV))  #3273 MSSV
-levels(factor(test1$TenTA))  # 18 courses
+
+# nlevels(factor(test1$MSSV))  #3273 MSSV
+# levels(factor(test1$TenTA))  # 18 courses
+
+# check classes using download but have no TietLMS
+test2 <- lmsfull[lmsfull$itlms!=0 & lmsfull$TietLMS==0,]  # 507 obser
+levels(factor(test2$classcode))                           # 5 classes
+test2a <- lmsfull[lmsfull$itlms!=0 & lmsfull$LMS==0,]     # the same 507
+levels(factor(test2$classcode))                           # the same 5 classes
 
 # Check classes that do not uses LMS but havign TietLMS
 #test1 <- lmsfull[is.na(lmsfull$LMS) & ,]
@@ -523,8 +535,13 @@ levels(factor(test1$TenTA))  # 18 courses
 # check complete observations of lmsfull data
 #new_DF <- DF[rowSums(is.na(DF)) > 0,]
 #Df[Df=='NA'] <- NA
-test2 <- lmsfull[rowSums(is.na(lmsfull)) == ncol(lmsfull),] # 0 completed observations
+test3 <- lmsfull[rowSums(is.na(lmsfull)) == ncol(lmsfull),] # 0 completed observations
 
+# why lmsfull1: 8354, lmsull:7579
+setdiff(lmsfull1[,1:36],lmsfull[,1:36]) -> a
+levels(factor(a$TenMH))        # all of them are not general course, except Micro, Macro
+# Reason: some of these class are duplicated. They are general courses,
+# but duplicated, so we eliminted them to get 7579.
 
 #------------------------------------------------------------------
 

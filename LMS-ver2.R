@@ -543,14 +543,60 @@ levels(factor(a$TenMH))        # all of them are not general course, except Micr
 # Reason: some of these class are duplicated. They are general courses,
 # but duplicated, so we eliminted them to get 7579.
 
+# ------------------------------------------------------------------
+# Input MSSV and classcode
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/Course-Student-code")
+
+# Import data into R: HKC 2016 of CTT and HKD2017
+Files4 <- list.files(pattern="*.csv")
+test <- lapply(Files4, function(x) read.csv(x))
+
+# Creat 6 score datasets for each of HK
+for (i in 1:6) {
+  assign(paste("code",i, sep=""), data.frame(test[i]))
+  assign(paste("xname",i, sep=""), data.frame(test[i])[1,])
+}
+
+# Check existence of CTT: 
+for (i in test) {
+  data.frame(i$Kh√≥a) -> z
+  print(table(z))
+}
+# In code3, there are 249 CTT, but they are not general course, so do not include
+# so, only include code2 and code6
+
+# Combine 2 dataset into 1 dataset due to only CTT
+code2$Ng√.nh.Chuy√™n.ng√.nh <- NULL
+code <- full_join(code6,code2)
+nrow(code) == nrow(code2) + nrow(code6) # good: 39822
+# only keep CTT
+code <- code[grepl("CTT", code$Kh√≥a),] # 32855
+
+# check
+table(code$H·..c.ph·∫.n) -> a  # 30 classes
+
+# If only keep 9 courses, we will loose other classes that can be
+# used to analyse effect of LMS.
+# But we need to analyse effect of LMS in 1 specific course in order to
+# have enough number of observations.
+code$MHP <- substr(code$L·..p.h·..c.ph·∫.n,5,13)
+a <- code[ grepl(paste(chooselist, collapse="|"), code$MHP), ]  #28307
+# Having some students testing 14 courses:
+b <- data.frame(table(a$MSSV))
+max(b$Freq)               
+table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
+
+
+
 #------------------------------------------------------------------
 
 # merge long_score and lmsfull data
-lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","coursecode"), all.x = TRUE)
-# Some course appear in LMS but not in long_score 
+names(long_score)[9] <- "MaHP"
+lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","MaHP"), all = TRUE)
+
 # (due to they are not general course)
-# merge and keep only matched data: 12059
-lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","coursecode"))
+# merge and keep only matched data: 32891
+lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","MaHP"))
 lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL
 
 # check duplicated class of teacher and students

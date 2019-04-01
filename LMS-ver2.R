@@ -33,8 +33,8 @@ names(dc)[2:4] <- c("MaHP","Name","weight")
 weight <- dc[!grepl("FRE", dc$MaHP),c(2,4)]
 gc <- weight[,1]
 chooselist <- gc[[1]]
-names(full_data)[4] <- "MHP"
-a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MHP), ]
+names(full_data)[4] <- "MaHP"
+a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MaHP), ]
 full_data <- a      #10187 observation
 
 fulldata<-unique(full_data)    # fulldata is just data of LMS only
@@ -225,7 +225,7 @@ gc2 <- dc[,2]
 # only has LMS of LMS class while not all of classes has LMS
 lmsfull <- merge(full_data, full_general_hk, by = "classcode", all = TRUE)
 # 17550 observations of lms and hk of general course
-table(lmsfull$KhoaHoc)    # 11521 DHCQ K42
+table(lmsfull$KhoaHoc)    # 17550 DHCQ K42
 # note: general courses here maybe taught for CQ, VB2, CLC, HPR, HPC, ...
 # reason: the hk data is data of all types of students, not CTTT of K42
 lmsfull <- lmsfull[lmsfull$KhoaHoc == "DHCQK42",] #11705
@@ -259,6 +259,49 @@ c <- lmsfull[duplicated(lmsfull[,c(1,2,24)]),]
 d <- lmsfull[duplicated(lmsfull[,c(1,2,24)]) | duplicated(lmsfull[,c(1,2,24)], fromLast = TRUE),]  # 3350 
 lmsfull1 <- lmsfull[!duplicated(lmsfull[,c(1,2,24)]),]   # 8354
 
+# ------------------------------------------------------------------
+# Input MSSV and classcode
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/Course-Student-code")
+
+# Import data into R: HKC 2016 of CTT and HKD2017
+Files4 <- list.files(pattern="*.csv")
+test <- lapply(Files4, function(x) read.csv(x))
+
+# Creat 6 score datasets for each of HK
+for (i in 1:6) {
+  assign(paste("code",i, sep=""), data.frame(test[i]))
+  assign(paste("xname",i, sep=""), data.frame(test[i])[1,])
+}
+
+# Check existence of CTT: 
+for (i in test) {
+  data.frame(i$Kh√≥a) -> z
+  print(table(z))
+}
+# In code3, there are 249 CTT, but they are not general course, so do not include
+# so, only include code2 and code6
+
+# Combine 2 dataset into 1 dataset due to only CTT
+code2$Ng√.nh.Chuy√™n.ng√.nh <- NULL
+code <- full_join(code6,code2)
+nrow(code) == nrow(code2) + nrow(code6) # good: 39822
+# only keep CTT
+code <- code[grepl("CTT", code$Kh√≥a),] # 32855
+
+# check
+table(code$H·..c.ph·∫.n) -> a  # 30 classes
+
+# If only keep 9 courses, we will loose other classes that can be
+# used to analyse effect of LMS.
+# But we need to analyse effect of LMS in 1 specific course in order to
+# have enough number of observations.
+code$MaHP <- substr(code$L·..p.h·..c.ph·∫.n,5,13)
+generalcode <- code[ grepl(paste(chooselist, collapse="|"), code$MaHP), ]  #28307
+# Having some students testing 14 courses:
+b <- data.frame(table(generalcode$MSSV))
+max(b$Freq)               
+table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
+# there are 2840 MSSV testing 9 times
 
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
 # Note: the information includes all of score of students of HK1, HK2, HK3
@@ -460,6 +503,7 @@ reshape(full_general_score, direction = "long",
         times = names(full_general_score)[4:12]) -> long_score
 # 4115*9 = 37035, matched to the number of records in long format
 
+#--------------------------------------------------
 # Create var coursecode for lmsfull data
 # Note: lmsfull data is just data inlcude all general classes and teachers.
 # some of these classes had LMS some did not.
@@ -471,10 +515,10 @@ lmsfull <- lmsfull[ grepl(paste(chooselist, collapse="|"), lmsfull$MaHP), ]
 
 lmsfull$a <- sapply(lmsfull$classcode,nchar)
 table(lmsfull$a)   # classcode length is: 13,15,16 characters 
-# check what course has code of 13,15,16 characters (note:15 is normal)
-table(lmsfull[lmsfull$a == 13, ]$TenHP)
-table(lmsfull[lmsfull$a == 15, ]$TenHP)
-table(lmsfull[lmsfull$a == 16, ]$TenHP)
+# # check what course has code of 13,15,16 characters (note:15 is normal)
+# table(lmsfull[lmsfull$a == 13, ]$TenHP)
+# table(lmsfull[lmsfull$a == 15, ]$TenHP)
+# table(lmsfull[lmsfull$a == 16, ]$TenHP)
 table(lmsfull$KhoaHoc)    
 a <- lmsfull[is.na(lmsfull$KhoaHoc),]    # 0 observations
 b <- na.omit(a)                           # all of them have no any data
@@ -492,14 +536,14 @@ lmsfull <- lmsfull[!is.na(lmsfull$KhoaHoc),]
 # #Yes they are the sam, so we use MaHP and change the name
 # names(lmsfull)[c(29,58)] <- c("coursecode","Coursecode")
 
-# ------- Check LMS of hk data and LMS of IT-department data
+# ------- Check LMS of hk data and LMS of IT-department data----------------
 # chooselist <- gc[[1]]
 # gchk <- hk[ grepl(paste(chooselist, collapse="|"), hk$MaHP), ]
 # gchk$LMS <- ifelse(is.na(gchk$LMS),0,1)
 # Idea: TietLMS = 0 means no LMS, download is NA means no LMS (in lmsfull)
 # NOte: there may be that some class do not announce it has LMS although
 # teachers register LMS section, so no student log in into LMS portal
-lmsfull$itlms <- ifelse(is.na(lmsfull$download),,1)
+lmsfull$itlms <- ifelse(is.na(lmsfull$download),0,1)
 lmsfull <- lmsfull[,c(1:47,49:58,48)]
 # Eliminiate duplicated observations of lmsfull because of NA in MSSVl
 lmsfull <- lmsfull[!duplicated(lmsfull[,c("MaCBGD","classcode","MSSV")]),]
@@ -535,66 +579,44 @@ levels(factor(test2$classcode))                           # the same 5 classes
 # check complete observations of lmsfull data
 #new_DF <- DF[rowSums(is.na(DF)) > 0,]
 #Df[Df=='NA'] <- NA
-test3 <- lmsfull[rowSums(is.na(lmsfull)) == ncol(lmsfull),] # 0 completed observations
+test3 <- lmsfull[rowSums(!is.na(lmsfull)) == ncol(lmsfull),] # 7258 completed observations
 
 # why lmsfull1: 8354, lmsull:7579
 setdiff(lmsfull1[,1:36],lmsfull[,1:36]) -> a
-levels(factor(a$TenMH))        # all of them are not general course, except Micro, Macro
+levels(factor(a$TenMH))        # all of them are not general course, except Micro, Macro (EN), so no problem
 # Reason: some of these class are duplicated. They are general courses,
 # but duplicated, so we eliminted them to get 7579.
 
-# ------------------------------------------------------------------
-# Input MSSV and classcode
-setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/Course-Student-code")
+#---------------------------------
+# merge long_score and code
+names(long_score)[9] <- "MaHP"
+a <- aggregate(MaHP ~ MSSV, data=long_score, NROW)  #4115 MSSV in long_score
+scorecode <- merge(long_score,generalcode,by=c("MSSV","MaHP"),all=TRUE)
+# 38629: long_score has 4115 MSSV, but generalcode only have CTT and others major
+# e.g: Anh Van Thuong Mai (CTT), HPR, ... (code2 still includes them) 
+# and some students do not exist in long_score
 
-# Import data into R: HKC 2016 of CTT and HKD2017
-Files4 <- list.files(pattern="*.csv")
-test <- lapply(Files4, function(x) read.csv(x))
+# check no. of students of each course
+table(scorecode$MaHP)
+# only keep students that appears 9 times
+a <- aggregate(MaHP ~ MSSV, data=scorecode, NROW)
+table(a$MaHP) #4164 studetns took 9 tests
+scorecode2 <- merge(scorecode,a,by="MSSV")
+scoredoe3 <- scorecode2[scorecode2$MaHP.y==9,]
 
-# Creat 6 score datasets for each of HK
-for (i in 1:6) {
-  assign(paste("code",i, sep=""), data.frame(test[i]))
-  assign(paste("xname",i, sep=""), data.frame(test[i])[1,])
-}
-
-# Check existence of CTT: 
-for (i in test) {
-  data.frame(i$Kh√≥a) -> z
-  print(table(z))
-}
-# In code3, there are 249 CTT, but they are not general course, so do not include
-# so, only include code2 and code6
-
-# Combine 2 dataset into 1 dataset due to only CTT
-code2$Ng√.nh.Chuy√™n.ng√.nh <- NULL
-code <- full_join(code6,code2)
-nrow(code) == nrow(code2) + nrow(code6) # good: 39822
-# only keep CTT
-code <- code[grepl("CTT", code$Kh√≥a),] # 32855
-
-# check
-table(code$H·..c.ph·∫.n) -> a  # 30 classes
-
-# If only keep 9 courses, we will loose other classes that can be
-# used to analyse effect of LMS.
-# But we need to analyse effect of LMS in 1 specific course in order to
-# have enough number of observations.
-code$MHP <- substr(code$L·..p.h·..c.ph·∫.n,5,13)
-a <- code[ grepl(paste(chooselist, collapse="|"), code$MHP), ]  #28307
-# Having some students testing 14 courses:
-b <- data.frame(table(a$MSSV))
-max(b$Freq)               
-table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
-
-
+# some of studetns do not have all classcode, check and why
+scorecode$b <- ifelse(is.na(scorecode$Ô..STT),0,1)
+a <- aggregate(b ~ MSSV, data=scorecode, sum)
+scorecode2 <- merge(scorecode,a,by="MSSV")
+scoredoe3 <- scorecode2[scorecode2$b.y==9,]    # 25560 records: 2840 students
+# maybe data of matching classcode and MSSV is not enough
 
 #------------------------------------------------------------------
 
 # merge long_score and lmsfull data
-names(long_score)[9] <- "MaHP"
 lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","MaHP"), all = TRUE)
 
-# (due to they are not general course)
+# (due to they are general course)
 # merge and keep only matched data: 32891
 lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","MaHP"))
 lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL

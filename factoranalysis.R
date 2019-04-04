@@ -505,4 +505,5 @@ reshape(full_general_score, direction = "long",
 
 
 # Export to stata
-write_dta(long_score, "factoranalysis.dta")
+write_dta(full_general_score, "factoranalysis.dta") 
+# file nay chinh la file factor da luu truoc do

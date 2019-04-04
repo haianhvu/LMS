@@ -490,6 +490,7 @@ dup_non$nomajor <- 1
 
 # Merge dup and dup_non to create data with unique records: 4115 = 4148 - 33
 full_general_score <- full_join(dup_non,dup1[,-c(19:20)])
+sum(complete.cases(full_general_score[,1:15])) # 4115 students have all 9 courses
 
 # #Check
 # sum(full_general_score[full_general_score$specialmajor==1,19])
@@ -605,11 +606,43 @@ scorecode2 <- merge(scorecode,a,by="MSSV")
 scoredoe3 <- scorecode2[scorecode2$MaHP.y==9,]
 
 # some of studetns do not have all classcode, check and why
-scorecode$b <- ifelse(is.na(scorecode$ï..STT),0,1)
+scorecode$b <- ifelse(is.na(scorecode$ï..STT),0,1)   # i...STT is of class schedule
+# so if it is NA in scorecode, it means there is 
+# no class matched to this student. Lack of this class for this student
+
 a <- aggregate(b ~ MSSV, data=scorecode, sum)
 scorecode2 <- merge(scorecode,a,by="MSSV")
-scoredoe3 <- scorecode2[scorecode2$b.y==9,]    # 25560 records: 2840 students
-# maybe data of matching classcode and MSSV is not enough
+scorecode3 <- scorecode2[scorecode2$b.y==9,]    # 25560 records: 2840 students
+# Reasons: because we only keep some classes of code2 and code6 and
+# some students have MSSV 3110, 3111, 3112, ... not 3116xxxx (of K42)
+# they are re-test student, who is not K42. K42 was born in 1998, 
+# these missing-value students were born in 1992,1993, ...
+# note: all LMS are 3116 student (k42 student)
+
+# Vai sinh vien cua Khoa truoc 3115 se chuyen diem xuong K42 3116, 
+# nen co diem trong long_Score, nhung khong co danh sach thi code1,2,3...
+# hoac la trong file code, ta chi dung code2 va code6, cac code khac bo
+# nen danh sach lop thi va MSSV khong gom cac sinh vien nay
+# kiem tra bang cach xem scorecode2, hai bien b.x=0 va b.y=0
+# how many students are there in this situation?
+data.frame(unique(scorecode2[scorecode2$b.y==0,]$MSSV)) -> a #1066 students
+
+# Check data appear in generalcode but not in long_score:
+scorecode$c <- ifelse(is.na(scorecode$Ho),0,1)
+scorecode2 <- scorecode[scorecode$c==0,]     #1594 observations
+table(substr(scorecode2$MSSV,1,4))    #1346 observations of 3116
+
+# scorecode3 has 25560 obser has 9 tests, but how is it for long_score?
+scorecode3$c <- ifelse(is.na(scorecode3$Ho),0,1)
+scorecode4 <- scorecode3[scorecode3$c==0,]    # 441 obsrvaions
+length(unique(scorecode4$MSSV))               # 49 students
+scorecode4 <- scorecode3[scorecode3$c==1,]    # 25119 = 2791 students
+
+# check difference between long_score (4115 students) and scorecode4 (2840)
+a <- unique(long_score[,1]) #4115 students
+b <- unique(scorecode3[,1]) #2840 students
+data.frame(setdiff(a,b)) -> c
+
 
 #------------------------------------------------------------------
 

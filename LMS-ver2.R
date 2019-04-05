@@ -641,48 +641,65 @@ scorecode4 <- scorecode3[scorecode3$c==1,]    # 25119 = 2791 students
 # check difference between long_score (4115 students) and scorecode4 (2840)
 a <- unique(long_score[,1]) #4115 students
 b <- unique(scorecode3[,1]) #2840 students
-data.frame(setdiff(a,b)) -> c
+c <- unique(scorecode4[,1])
+data.frame(setdiff(a,b)) -> d
+data.frame(setdiff(a,c)) -> e
+
+#------------------------------------------------------------------
+# merge scorecode and lmsfull data
+names(scorecode4)[17] <- "classcode"
+fullfinal <- merge(scorecode4,lmsfull,by=c("MSSV","classcode"),all=TRUE) #26379
+# scorecode4 = 25119, lmsfull=7579
+
+fullfinal2 <- merge(scorecode4,lmsfull,by=c("MSSV","classcode"))
+# lmsfull co mot vai sinh vien khong xuat hien, nhu 31151020256
+# nhung sinh vien nay lai co trong scorecode4
+# nhung lop cua sinh vien nay lai co trong lmsfull
+# cho nen khi match, sinh vien nay khong co thong tin giao vien
+# mac du cac ban sinh vien khac cung lop lai co 
+# (do co nhung sinh vien khac hoc lop nay xuat hien trong lmsfull)
+
 
 
 #------------------------------------------------------------------
 
-# merge long_score and lmsfull data
-lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","MaHP"), all = TRUE)
-
-# (due to they are general course)
-# merge and keep only matched data: 32891
-lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","MaHP"))
-lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL
-
-# check duplicated class of teacher and students
-sum(duplicated(lmsfinal2[,c(1,3,25)]))  # 3055(98007). want to know which student and class
-a <- lmsfinal2[duplicated(lmsfinal2[,c(1,3,25)]) | duplicated(lmsfinal2[,c(1,3,25)], fromLast = TRUE),]
-# Note: 6xxx (101676) observations which inlcudes 1 original and some duplicated
-# e.g: appearing 3 times = 1 original + 2 duplicated
-# some students appear 2 times, some appear 3 times
-# reason: classes are seperated into 2 parts due to the university reinnovation
-
-# Check the number of class each student study in lmsfinal2
-# They infact have 2 or 3 LMS class for the same course because they
-# have exercise class or because the schedule seperates one class into
-# 2 parts because of innovation.
-lmsfinal2 <- transform(lmsfinal2, group=as.numeric(factor(MSSV)))
-table(lmsfinal2$group) # students have different number of LMS class
-# Create the variable counting the number of LMS classes
-a <- aggregate(group ~ MSSV, data=lmsfinal2,
-                                FUN = function(x){NROW(x)})
-names(a)[2] <- "totalLMSclass"
-lmsfinal2 <- merge(lmsfinal2,a,by="MSSV")
-
-# Drop duplicated observation
-# But before that, need to determined TietLMS for duplicated classes.
-lmsfinal2 <- lmsfinal2[order(lmsfinal2$MSSV),]
-# infact, all of duplicated class have the same TietLMS?
-lmsfinal3 <- lmsfinal2[!duplicated(lmsfinal2[,c(1:3,25,49)]),] # 9004 observations
-
-# Recode some variable:
-lmsfinal3$GioiTinh <- ifelse(lmsfinal3$GioiTinh == "Nam",0,1) # Male: 0  Female:1
-lmsfinal3$TrinhDo <- ifelse(lmsfinal3$TrinhDo == "Thac si",0,ifelse(lmsfinal3$TrinhDo == "Tien si",1,NA))
+# # merge long_score and lmsfull data
+# lmsfinal <- merge(lmsfull,long_score, by = c("MSSV","MaHP"), all = TRUE)
+# 
+# # (due to they are general course)
+# # merge and keep only matched data: 32891
+# lmsfinal2 <- merge(lmsfull,long_score, by = c("MSSV","MaHP"))
+# lmsfinal2[c("X","specialmajor.1","highqualtymajor.1")] <- NULL
+# 
+# # check duplicated class of teacher and students
+# sum(duplicated(lmsfinal2[,c(1,3,25)]))  # 3055(98007). want to know which student and class
+# a <- lmsfinal2[duplicated(lmsfinal2[,c(1,3,25)]) | duplicated(lmsfinal2[,c(1,3,25)], fromLast = TRUE),]
+# # Note: 6xxx (101676) observations which inlcudes 1 original and some duplicated
+# # e.g: appearing 3 times = 1 original + 2 duplicated
+# # some students appear 2 times, some appear 3 times
+# # reason: classes are seperated into 2 parts due to the university reinnovation
+# 
+# # Check the number of class each student study in lmsfinal2
+# # They infact have 2 or 3 LMS class for the same course because they
+# # have exercise class or because the schedule seperates one class into
+# # 2 parts because of innovation.
+# lmsfinal2 <- transform(lmsfinal2, group=as.numeric(factor(MSSV)))
+# table(lmsfinal2$group) # students have different number of LMS class
+# # Create the variable counting the number of LMS classes
+# a <- aggregate(group ~ MSSV, data=lmsfinal2,
+#                                 FUN = function(x){NROW(x)})
+# names(a)[2] <- "totalLMSclass"
+# lmsfinal2 <- merge(lmsfinal2,a,by="MSSV")
+# 
+# # Drop duplicated observation
+# # But before that, need to determined TietLMS for duplicated classes.
+# lmsfinal2 <- lmsfinal2[order(lmsfinal2$MSSV),]
+# # infact, all of duplicated class have the same TietLMS?
+# lmsfinal3 <- lmsfinal2[!duplicated(lmsfinal2[,c(1:3,25,49)]),] # 9004 observations
+# 
+# # Recode some variable:
+# lmsfinal3$GioiTinh <- ifelse(lmsfinal3$GioiTinh == "Nam",0,1) # Male: 0  Female:1
+# lmsfinal3$TrinhDo <- ifelse(lmsfinal3$TrinhDo == "Thac si",0,ifelse(lmsfinal3$TrinhDo == "Tien si",1,NA))
 
 # How many observations do not have LMS class
 sum(is.na(lmsfinal3$LMS)) # 719 no LMS

@@ -702,7 +702,7 @@ full_final <- merge(score_hk, full_data, by=c("MSSV","classcode")) #6319
 full_final <- merge(score_hk, full_data, by=c("MSSV","classcode"),all.x = TRUE)
 # 25519 as we keep all of records of score_hk
 
-# some analysis
+# some initial checkt
 full_final$a <- ifelse(is.na(full_final$student),0,1) 
 full_final <- transform(full_final, classid=as.numeric(factor(classcode)), 
                             studentid=as.numeric(factor(MSSV))) #316 classes
@@ -714,9 +714,15 @@ full_final$b <- ifelse(is.na(full_final$MaCBGD),0,1)
 b <- aggregate(b ~ studentid, data=full_final, mean)
 table(b$b) # 2791 so 1, means every records have class information
 
-# make 
+# make some analysis
+# how many classes for each course
+sum(full_final$MaHP.x == full_final$MaHP.y) #ok
+a <- aggregate(classcode ~ MaHP.x, data=full_final, length) # 2791 / course
 
-
+# LMS and no LMS for each course:
+table(full_final$MaHP.x,full_final$LMS, exclude = NULL)
+# so we can only use ECO1, ECO2, PML1, PML2, ENG1, ENG2 to analyse LMS
+# note: all students have 9 scores
 
 #------------------------------------------------------------------
 

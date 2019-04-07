@@ -35,7 +35,7 @@ gc <- weight[,1]
 chooselist <- gc[[1]]
 names(full_data)[4] <- "MaHP"
 a <- full_data[ grepl(paste(chooselist, collapse="|"), full_data$MaHP), ]
-full_data <- a      #10187 observation
+full_data <- a      #10187 observation: only 9 general courses
 
 fulldata<-unique(full_data)    # fulldata is just data of LMS only
 # Rename variables 1 to 4 from Vietnamese to English
@@ -658,6 +658,63 @@ fullfinal2 <- merge(scorecode4,lmsfull,by=c("MSSV","classcode"))
 # cho nen khi match, sinh vien nay khong co thong tin giao vien
 # mac du cac ban sinh vien khac cung lop lai co 
 # (do co nhung sinh vien khac hoc lop nay xuat hien trong lmsfull)
+
+# cho nen tot nhat la lay scorecode4 merge voi general_hk va lms
+general_hk <- full_general_hk[grepl(paste(chooselist, collapse="|"), full_general_hk$MaHP), ]
+table(general_hk$KhoaHoc)
+general_hk2 <- general_hk[which(general_hk$KhoaHoc=="DHCQK42"),] # keep only K42 CTT
+
+score_hk <- merge(scorecode4,general_hk2, by=c("classcode"))
+b <- aggregate(classcode~MSSV, data=score_hk, length)
+table(b$classcode)
+
+# can loai bo cac lop bi duplicated do doi gio giang
+#check check LMS and Tiet LMS = 0
+#wrong command due to NA value in LMS, R still keep it.
+#a <- general_hk[general_hk$LMS=="X" & general_hk$TietLMS==0,]
+a <- subset(general_hk2,general_hk$LMS=="X" & general_hk$TietLMS==0)
+table(a$GioHoc) #GioHoc van the hien 5 Tiet. Khong biet la co cat LMS khong
+# # Do not Sum Tiet LMS before deleting
+# a <- aggregate(general_hk$TietMS ~ general_hk$classcode,general_hk,sum)
+
+# # NOTE: do not sum TietLMS because it is just repeated, it does not mean
+# # that each seperated classes has TietLMS by themself (eg 16C1ENG51300195)
+
+# # Check class having same name but different LMS check
+b <- aggregate(LMS ~ classcode + TietLMS, data=general_hk2, length)
+sum(duplicated(general_hk2[,c(8,28)])) # results 192
+sum(duplicated(general_hk2[,c(8)]))    # 192, 
+# so we are sure that no seperated class have different LMS check.
+sum(duplicated(general_hk2[,c(8,28,29)]))  #192
+# so we are sure that no seperated class have different TietLMS.
+# delete seperated classes
+general_hk3 <- general_hk2[!duplicated(general_hk2[,c(8,28,29)]),] # 329
+
+# merge score and schedule
+score_hk <- merge(scorecode4,general_hk3, by=c("classcode")) # 25119
+# scorecode4: 25119 (2791 students CTT K42)
+sum(is.na(score_hk$MSSV)) + sum(is.na(score_hk$classcode))
+
+# merge score, schedue and LMS
+full_final <- merge(score_hk, full_data, by=c("MSSV","classcode")) #6319
+# score_hk:25119, full_data:10187, and only 6319 matched
+# of course, because full_data includes classes of LMS only, not all class
+full_final <- merge(score_hk, full_data, by=c("MSSV","classcode"),all.x = TRUE)
+# 25519 as we keep all of records of score_hk
+
+# some analysis
+full_final$a <- ifelse(is.na(full_final$student),0,1) 
+full_final <- transform(full_final, classid=as.numeric(factor(classcode)), 
+                            studentid=as.numeric(factor(MSSV))) #316 classes
+full_final <- full_final[order(full_final$classid),]            # 2791 id
+a <- aggregate(a ~ classid, data=full_final, mean)
+table(a$a) # 231 classes no LMS, 58 class have all student using LMS
+
+full_final$b <- ifelse(is.na(full_final$MaCBGD),0,1) 
+b <- aggregate(b ~ studentid, data=full_final, mean)
+table(b$b) # 2791 so 1, means every records have class information
+
+# make 
 
 
 

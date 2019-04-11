@@ -712,7 +712,7 @@ table(a$a) # 231 classes no LMS, 58 class have all student using LMS
 
 full_final$b <- ifelse(is.na(full_final$MaCBGD),0,1) 
 b <- aggregate(b ~ studentid, data=full_final, mean)
-table(b$b) # 2791 so 1, means every records have class information
+table(b$b) # 2791 of number 1, means every records have class information
 
 # make some analysis
 # how many classes for each course
@@ -723,6 +723,24 @@ a <- aggregate(classcode ~ MaHP.x, data=full_final, length) # 2791 / course
 table(full_final$MaHP.x,full_final$LMS, exclude = NULL)
 # so we can only use ECO1, ECO2, PML1, PML2, ENG1, ENG2 to analyse LMS
 # note: all students have 9 scores
+
+sum(is.na(full_final$specialmajor))
+sum(is.na(full_final$highqualtymajor))
+table(full_final$nomajor)
+
+full_final$LMS <- ifelse(is.na(full_final$LMS),0,1)
+full_final[,c("specialmajor.1","highqualtymajor.1")] <- NULL
+
+# Count no. of classes of each courses with LMS and noLMS
+a <- NULL
+for (i in chooselist) {
+  x <- full_final[full_final$MaHP.x == i,]
+  y <- length(unique(x[x$LMS == 0,]$classid))
+  z <- length(unique(x[x$LMS == 1,]$classid))
+  a <- rbind(a,data.frame("course" = paste(i),"noLMS"=y,"LMS"=z,"total"=y+z))
+}
+View(a)
+
 
 #------------------------------------------------------------------
 

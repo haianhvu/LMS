@@ -507,3 +507,40 @@ reshape(full_general_score, direction = "long",
 # Export to stata
 write_dta(full_general_score, "factoranalysis.dta") 
 # file nay chinh la file factor da luu truoc do
+
+
+################ CONFIRMATORY FACTOR ANALYSIS ###################
+
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
+
+Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K43", pattern=c("*HKC_2017*","*HKD_2018*","*.csv"))
+test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
+#sum(sapply(test,length))
+
+# Create 120 score datasets for each of Majors (all 3 semester) 80 (2 semester)
+chooselist43 <- paste0(chooselist,".10.1")
+
+# Way 1:
+# score43 <- data.frame(StudentID=NA)
+# for (i in 1:(length(test))){
+#   score <- test[[i]][-(1:2),] # Delete 2 rows: 1nd and 2rd rows
+#   score <- score[,c(1:2, which(colnames(score) %in% chooselist43))]
+#   score43 <- merge(score43, score, by="StudentID", all=TRUE)
+# } #4938 students
+# Row of dataframe is a dataframe, so unlist to use which()
+# which(unlist(a[1,]) %in% chooselist)
+
+# Way 2: chi giu lai cac mon can thiet, be thang dang long, roi cbind()
+
+# Way 3: dung full_joint
+score44 <- test[[1]][-(1:2),]
+for (i in 2:(length(test))){
+  score <- test[[i]][-(1:2),] # Delete 2 rows: 1nd and 2rd rows
+  score <- score[,c(1:3, which(colnames(score) %in% chooselist43))]
+  score44 <- full_join(score44, score)
+}
+
+
+# Course: #10#1
+
+

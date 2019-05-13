@@ -2,11 +2,14 @@ install.packages("readr")
 install.packages("dplyr")
 install.packages("foreign")
 install.packages("haven")
+install.packages("reshape2")
 
 library("readr")
 library("dplyr")
 library("foreign")
 library("haven")
+library(reshape2)
+
 rm(list = ls())
 
 
@@ -505,7 +508,8 @@ reshape(full_general_score, direction = "long",
 
 
 # Export to stata
-write_dta(full_general_score, "factoranalysis.dta") 
+full_general_score <- full_general_score[,-c(16,17)]
+write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis.dta") 
 # file nay chinh la file factor da luu truoc do
 
 
@@ -513,12 +517,14 @@ write_dta(full_general_score, "factoranalysis.dta")
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
 
+#pattern <- "CTT_((HKD_2018)|(HKC_2017))"
 pattern <- "_((HKD_2018)|(HKC_2017))"
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K43", pattern=pattern)
-data <- lapply(Files, function(x) read.csv(x)) # Xem tren data de biet bao nhieu file
+data <- lapply(Files, function(x) read.csv(x, stringsAsFactors = FALSE)) # Xem tren data de biet bao nhieu file
 #sum(sapply(data,length))
 
 # Create 120 score datasets for each of Majors (all 3 semester) 80 (2 semester)
+# or create 60 data set for 2 semester of CTT only
 chooselist43 <- paste0(chooselist,".10.1")   # Names of columns need to keep
 
 # Way 1:
@@ -533,52 +539,67 @@ chooselist43 <- paste0(chooselist,".10.1")   # Names of columns need to keep
 
 # Way 2: chi giu lai cac mon can thiet, be thang dang long, roi cbind()
 
-# Way 3: dung full_joint: 9584
+# Way 3: dung full_joint: 9584 (for 3 majors) (7271 for CTT only)
 score43 <- data[[1]][-(1:2),c(1:3, which(colnames(data[[1]]) %in% chooselist43))] # Delete 2 rows: 1nd and 2rd rows
 for (i in 2:(length(data))){
   score43 <- full_join(score43, data[[i]][-(1:2),
                       c(1:3,which(colnames(data[[i]]) %in% chooselist43))])
 }
-# 9584 observations
+# 7271 observations
 
 score43[score43 == ""] <- NA 
 
-# Way 1:
-score431 <- score43[duplicated(score43$StudentID),] #4800
-score432 <- score43[!duplicated(score43$StudentID),] #4784
-setdiff(score432$StudentID,score431$StudentID) # this is 20 ID that only appear 1 time: 
+# # Way 1:
+# score431 <- score43[duplicated(score43$StudentID),] #4800 (3602)
+# score432 <- score43[!duplicated(score43$StudentID),] #4784 (3669)
+# setdiff(score432$StudentID,score431$StudentID) # this is 20 (82) ID that only appear 1 time:
+# 
+# length(unique(score43$StudentID)) #4784 (3669)
+# length(unique(score431$StudentID)) #4764: 4800 - 4764 = 36 cases duplicated 3 times ( or 20 )
+# length(unique(score432$StudentID)) #4784 (3669)
+# score431[duplicated(score431$StudentID),1] # 36 cases (or 20)
+# unique(score431[duplicated(score431$StudentID),1]) # 8 MSSV of 36 cases (7)
+# 
+score43 <- unique(score43) #9506 (7218): reduce 9584 - 9506 = 78 observations ( 53 = 7271 - 7218)
+score43 <- score43[rowSums(is.na(score43))!=9,] # 9402 (7151) not NA all informations
+# # score43_1$na_count <- apply(score43_1, 1, function(x) sum(is.na(x)))
+# # score43_1 <- score43_1[score43_1$na_count!=9,]
+score431 <- score43[duplicated(score43$StudentID),] #4665 (3516)
+score432 <- score43[!duplicated(score43$StudentID),] #4737 (3635)
+# length(unique(score431$StudentID)) # check (equal with above result)
+# length(unique(score432$StudentID))
 
-length(unique(score43$StudentID)) #4784
-length(unique(score431$StudentID)) #4764: 4800 - 4764 = 36 cases duplicated 3 times
-length(unique(score432$StudentID)) #4784
-score431[duplicated(score431$StudentID),1] # 36 cases 
-unique(score431[duplicated(score431$StudentID),1]) # 8 MSSV of 36 cases
+# a <- setdiff(score432$StudentID,score431$StudentID) #72 MSSV appear 1 time
+# 
+# score432 <- score432[score432$StudentID %in% score431$StudentID,] # only keep MSSV which appears in score431
+# 
+# library(reshape2)
 
-score43 <- unique(score43) #9506: reduce 9584 - 9506 = 78 observations 
-score43 <- score43[rowSums(is.na(score43))!=9,] # 9402 not NA all informations
-# score43_1$na_count <- apply(score43_1, 1, function(x) sum(is.na(x)))
-# score43_1 <- score43_1[score43_1$na_count!=9,]
-score431 <- score43[duplicated(score43$StudentID),] #4665
-score432 <- score43[!duplicated(score43$StudentID),] #4737
-a <- setdiff(score432$StudentID,score431$StudentID) #72 MSSV appear 1 time
-
-score432 <- score432[score432$StudentID %in% score431$StudentID,] # only keep MSSV which appears in score431
-
-library(reshape2)
+# create a K43 score data
 var<-names(score431)[4:12]
+
 test1 <- melt(score431,measure.vars = var,na.rm=TRUE)
 test2 <- melt(score432,measure.vars = var,na.rm=TRUE)
 DF <- rbind(test1,test2)
-test <- dcast(DF,StudentID + LastName + FirstName ~ variable, value.var='value')
-
-# Way 2:
 score43c <- dcast(DF,StudentID + LastName + FirstName ~ variable, value.var='value')
 # Giu 3 bien StudentID, LastName, FirstName de lam ID
-# Lay bien "variable" de lam biet be ra thanh cot
-# Gia tri lay trong bien "value"
+# Lay bien "variable" (trong data DF) de lam bien be ra thanh cot
+# Gia tri cua cac cot moi thi lay trong bien "value"
 
-score43f <- score43c[complete.cases(score43c),]  #4054 cases
+score43f <- score43c[complete.cases(score43c),]  #4054 (3274) cases
 names(score43f)[4:12] <- lapply(names(score43f)[4:12], function(x) substr(x,1,9))
+# score43f[,12] <- as.numeric(score43f[,-c(1:3)])
 
-write_dta(score43f[,-(2:3)], "factoranalysis43.dta") 
+# write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43.dta") 
+write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factoranalysis43.dta") 
+
+#### Infor of K43
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
+info<- read.csv("Info/DS_K43_All.csv", stringsAsFactors=FALSE)
+
+info <- info[,c(1,6,7,8,11,13,16,18,24,28,30,34:38,40)]
+names(info)[1] <- "StudentID"
+score43ff <- merge(score43f,info,by = "StudentID") # all obser of score43f is´kept, good
+
+write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43.dta") 
 

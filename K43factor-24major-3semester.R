@@ -91,12 +91,12 @@ score43c <- dcast(DF,StudentID + LastName + FirstName ~ variable, value.var='val
 # Lay bien "variable" (trong data DF) de lam bien be ra thanh cot
 # Gia tri cua cac cot moi thi lay trong bien "value"
 
-score43f <- score43c[complete.cases(score43c),]  #3117 cases
+score43f <- score43c[complete.cases(score43c),]  #3164 cases
 names(score43f)[4:12] <- lapply(names(score43f)[4:12], function(x) substr(x,1,9))
 # score43f[,12] <- as.numeric(score43f[,-c(1:3)])
 
 # write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43.dta") 
-write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/k43-24major.dta") 
+write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/k43-24major-3semester.dta") 
 
 #### Infor of K43
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
@@ -106,5 +106,5 @@ info <- info[,c(1,6,7,8,11,13,16,18,24,28,30,34:38,40)]
 names(info)[1] <- "StudentID"
 score43ff <- merge(score43f,info,by = "StudentID") # all obser of score43f is´kept, good
 
-write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-24major.dta") 
+write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-24major-3semester.dta") 
 

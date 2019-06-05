@@ -601,5 +601,5 @@ info <- info[,c(1,6,7,8,11,13,16,18,24,28,30,34:38,40)]
 names(info)[1] <- "StudentID"
 score43ff <- merge(score43f,info,by = "StudentID") # all obser of score43f is´kept, good
 
-write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43.dta") 
+write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-less.dta") 
 

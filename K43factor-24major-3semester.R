@@ -81,7 +81,7 @@ score432 <- score43[!duplicated(score43$StudentID),] # 3190
 # library(reshape2)
 
 # create a K43 score data
-var<-names(score431)[4:12]
+var<-names(score431)[4:13]
 
 test1 <- melt(score431,measure.vars = var,na.rm=TRUE)
 test2 <- melt(score432,measure.vars = var,na.rm=TRUE)
@@ -92,11 +92,12 @@ score43c <- dcast(DF,StudentID + LastName + FirstName ~ variable, value.var='val
 # Gia tri cua cac cot moi thi lay trong bien "value"
 
 score43f <- score43c[complete.cases(score43c),]  #3164 cases
-names(score43f)[4:12] <- lapply(names(score43f)[4:12], function(x) substr(x,1,9))
+names(score43f)[4:13] <- lapply(names(score43f)[4:13], function(x) substr(x,1,9))
 # score43f[,12] <- as.numeric(score43f[,-c(1:3)])
 
 # write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43.dta") 
 write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/k43-24major-3semester.dta") 
+# 3164
 
 #### Infor of K43
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")

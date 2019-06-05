@@ -517,8 +517,9 @@ write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis.
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
 
-#pattern <- "CTT_((HKD_2018)|(HKC_2017))"
-pattern <- "_((HKD_2018)|(HKC_2017))"
+#pattern <- "CTT_((HKD_2018)|(HKC_2017))" # If want to use CTT only, inclding both some major likes: TATM, BV, ...
+pattern <- "_((HKD_2018)|(HKC_2017))"     # if want to use CTT, HPR, CLC
+
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K43", pattern=pattern)
 data <- lapply(Files, function(x) read.csv(x, stringsAsFactors = FALSE)) # Xem tren data de biet bao nhieu file
 #sum(sapply(data,length))
@@ -590,8 +591,8 @@ score43f <- score43c[complete.cases(score43c),]  #4054 (3274) cases
 names(score43f)[4:12] <- lapply(names(score43f)[4:12], function(x) substr(x,1,9))
 # score43f[,12] <- as.numeric(score43f[,-c(1:3)])
 
-# write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43.dta") 
-write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factoranalysis43.dta") 
+write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43-4054.dta") 
+#write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factoranalysis43-3274.dta") 
 
 #### Infor of K43
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
@@ -601,5 +602,6 @@ info <- info[,c(1,6,7,8,11,13,16,18,24,28,30,34:38,40)]
 names(info)[1] <- "StudentID"
 score43ff <- merge(score43f,info,by = "StudentID") # all obser of score43f is´kept, good
 
-write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-less.dta") 
+write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-4054.dta") 
+#write_dta(score43ff[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-3274.dta") 
 

@@ -312,6 +312,7 @@ table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
 # only 9 general courses. So the final data only has general_course
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
+#setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24")
 
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
@@ -509,8 +510,8 @@ reshape(full_general_score, direction = "long",
 
 # Export to stata
 full_general_score <- full_general_score[,-c(16,17)]
-write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis.dta") 
-# file nay chinh la file factor da luu truoc do
+write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42.dta") 
+# file nay chinh la file factor da luu truoc do cho K42
 
 
 ################ CONFIRMATORY FACTOR ANALYSIS ###################

@@ -306,15 +306,16 @@ max(b$Freq)
 table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
 # there are 2840 MSSV testing 9 times
 
+
 #------- Diem Sinh Vien Chuong Trinh Tien Tien ---------------
 # Note: the information includes all of score of students of HK1, HK2, HK3
 # so we firstly imput all of data, and then we only use gc$MaHP to keep
 # only 9 general courses. So the final data only has general_course
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
-#setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24")
 
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
+#Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24", pattern="*.csv")
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
 # Creat 27 score datasets for each of Majors
@@ -332,8 +333,8 @@ for (i in 2:27) {
 
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
-score[, 7:522] <- sapply(score[, 7:522], as.character)
-score[, 7:522] <- sapply(score[, 7:522], as.numeric)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.character)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode1 <- data.frame(sapply(score, mode))
 
@@ -385,8 +386,8 @@ for (i in 2:4) {
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
 # There are 142 variables
-score[, 7:142] <- sapply(score[, 7:142], as.character)
-score[, 7:142] <- sapply(score[, 7:142], as.numeric)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.character)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode2 <- data.frame(sapply(score, mode))
 
@@ -440,8 +441,8 @@ for (i in 2:6) {
 # Check mode of variables and change it to numeric
 mode <- data.frame(sapply(score, mode))
 # There are 203 variables
-score[, 7:203] <- sapply(score[, 7:203], as.character)
-score[, 7:203] <- sapply(score[, 7:203], as.numeric)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.character)
+score[, 7:ncol(score)] <- sapply(score[, 7:ncol(score)], as.numeric)
 score[,5] <- as.numeric(score[,5])
 # mode3 <- data.frame(sapply(score, mode))
 
@@ -509,8 +510,10 @@ reshape(full_general_score, direction = "long",
 
 
 # Export to stata
-full_general_score <- full_general_score[,-c(16,17)]
+full_general_score <- full_general_score[,-c(16,17)] 
+# 4115 for CTT and 3910 for CTT24
 write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42.dta") 
+#write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta") 
 # file nay chinh la file factor da luu truoc do cho K42
 
 

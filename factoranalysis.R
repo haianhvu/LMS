@@ -58,6 +58,11 @@ hk <- rbind(hkc2016,hkc2017,hkd2017)
 # Number of class schedule: 10089 = 2978 + 3761 + 3350
 hk <- unique(hk)
 
+######### K42 Student Info ################
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
+info42<- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
+info42 <- info42[,c(1,5:8,11,13,16:18,24,26,28,30,34:38,48,49,57,60,
+                      69,71,73,108,109)]
 
 # # Extract the classes of general stage
 # # Do not have Statistics and Hochiminh
@@ -314,8 +319,8 @@ table(b$Freq)   # some tested 1 times, 2 times, ..., 9 times
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 
-Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
-#Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24", pattern="*.csv")
+#Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
+Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24", pattern="*.csv")
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
 # Creat 27 score datasets for each of Majors
@@ -512,8 +517,8 @@ reshape(full_general_score, direction = "long",
 # Export to stata
 full_general_score <- full_general_score[,-c(16,17)] 
 # 4115 for CTT and 3910 for CTT24
-write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42.dta") 
-#write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta") 
+#write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42.dta") 
+write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta") 
 # file nay chinh la file factor da luu truoc do cho K42
 
 
@@ -598,7 +603,7 @@ names(score43f)[4:12] <- lapply(names(score43f)[4:12], function(x) substr(x,1,9)
 write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/factoranalysis43-4054.dta") 
 #write_dta(score43f[,-(2:3)], "C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factoranalysis43-3274.dta") 
 
-#### Infor of K43
+########## Infor of K43 ########
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
 info<- read.csv("Info/DS_K43_All.csv", stringsAsFactors=FALSE)
 

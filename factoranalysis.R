@@ -527,7 +527,7 @@ write_dta(full_general_score, "C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24maj
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K43")
 
 #pattern <- "CTT_((HKD_2018)|(HKC_2017))" # If want to use CTT only, inclding both some major likes: TATM, BV, ...
-pattern <- "_((HKD_2018)|(HKC_2017))"     # if want to use CTT, HPR, CLC
+pattern <- "_((HKD_2018)|(HKC_2017))"     # if want to use all of CTT, HPR, CLC
 
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K43", pattern=pattern)
 data <- lapply(Files, function(x) read.csv(x, stringsAsFactors = FALSE)) # Xem tren data de biet bao nhieu file

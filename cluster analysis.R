@@ -18,14 +18,39 @@ library(NbClust)
 
 data <- read_dta("C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta")
 nb <- NbClust(data[,4:12], distance = "euclidean",
-              min.nc=2, max.nc=10, method = "kmeans", index="all")
+              min.nc=2, max.nc=10, method = "ward.D2", index="all")
 # , diss="NULL"  : do not work if we put this argument into the command
 # max.nc=15 is the default,
 
 nb$All.index
 nb$All.CriticalValues
 nb$Best.partition
-nb$Best.nc -> a
 
-barplot(table(a[1,]))
+nb$Best.nc -> a
+table(a[1,])
+barplot(table(a[1,])
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+       min.nc=2, max.nc=10, method = "ward.D2", index="all", ) # best is 4
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+      min.nc=2, max.nc=10, method = "ward.D", index="all") # 3
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "kmeans", index="all") # 2
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "complete", index="all") # 2, 4
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "single", index="all") # 3
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "median", index="all") # 2
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "centroid", index="all") # 2
+
+nb <- NbClust(data[,4:12], distance = "euclidean",
+              min.nc=2, max.nc=10, method = "average", index="all") # 2
 

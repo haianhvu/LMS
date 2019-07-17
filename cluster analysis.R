@@ -92,13 +92,13 @@ k4 <- kmeans(dat, centers = 4, nstart = 25)
 k5 <- kmeans(dat, centers = 5, nstart = 25)
 
 # plots to compare
-p1 <- fviz_cluster(k2, geom = "point", data = df) + ggtitle("k = 2")
-p2 <- fviz_cluster(k3, geom = "point",  data = df) + ggtitle("k = 3")
-p3 <- fviz_cluster(k4, geom = "point",  data = df) + ggtitle("k = 4")
-p4 <- fviz_cluster(k5, geom = "point",  data = df) + ggtitle("k = 5")
+p2 <- fviz_cluster(k2, geom = "point", data = dat) + ggtitle("k = 2")
+p3 <- fviz_cluster(k3, geom = "point",  data = dat) + ggtitle("k = 3")
+p4 <- fviz_cluster(k4, geom = "point",  data = dat) + ggtitle("k = 4")
+p5 <- fviz_cluster(k5, geom = "point",  data = dat) + ggtitle("k = 5")
 
 library(gridExtra)
-grid.arrange(p1, p2, p3, p4, nrow = 2)
+grid.arrange(p2, p3, p4, p5, nrow = 2)
 
 clusplot(dat, k4$cluster, color=TRUE, shade=TRUE, 
          labels=1, lines=0)

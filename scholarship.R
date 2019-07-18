@@ -33,7 +33,7 @@ length(KKHT42$MSSV)
 HTHT42 <- HTHT[HTHT$Khoa==42,]
 length(HTHT42$MSSV)
 
-# Test how many k42 students receive 2 types of scholarship: 26 abd 18
+# Test how many k42 students receive 2 types of scholarship: 26 and 18
 length(which(KKHT42$`chi nhan KKHT`==0))
 sum(HTHT42$`chi nhan HTHT`==0)      
 
@@ -276,6 +276,10 @@ test <- setdiff(test1,test2)
 # No, they are A00, A01, D01
 table(test2$Khoi.x)
 
+# final_full_kkht2 = info + diemthidauvao + GPA : 4813 students
+#write_dta(final_full_kkht2, "final_full_kkht.dta")
+
+
 # -------- Eliminate all of student receive HTHT ----------
 htht_id <- HTHT42$MSSV # Get MSSV of HTHT: 162 students
 # some receive 100% of 2 types of HB, some receive 50% of each HB
@@ -314,7 +318,9 @@ sum(is.na(final[final$Khoi == "A00",]$DM1)) # 16
 sum(is.na(final[final$Khoi == "A01",]$DM1)) # 10
 sum(is.na(final[final$Khoi == "D01",]$DM1)) # 10
 
-#
+
+# Final step to create final data
+
 a <- setdiff(final$ngaysinh,final$NgaySinh)
 b <- setdiff(final$ngaysinh,final$`Ngay sinh`)
 levels(as.factor(final$Nganh))
@@ -366,3 +372,12 @@ levels(as.factor(final$AreaID)) # cong diem khu vuc, KV1: 1.5, KV2NT: 1, KV2: 0.
 
 # Export to stata
 write_dta(final, "final.dta")
+# bao gom sinh vien k nhan hoc bong, sinh vien nhan KKHT only, 
+# va sinh vien nhan ca KKHT va HTHT, loai bo sinh vien nhan HTHT
+
+names(final)[c(51,52,53,54,58:60,62,64)] <- c("maloaisv","loaisv","tinhtrang",
+                                  "fatherjob","khoa","nganh","nganhhoc",
+                                  "chuongtrinh","malop")
+write_dta(final, "finalfull.dta") 
+# Bao gom tat ca sinh vien
+

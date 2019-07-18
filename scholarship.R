@@ -138,7 +138,7 @@ sum(duplicated(finalstudent$MSSV))
 # write_dta(a, "factor.dta")
 
 
-#-------------- Average Grade import -------------------
+# -------------- Average Grade import -------------------
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
 
@@ -380,4 +380,16 @@ names(final)[c(51,52,53,54,58:60,62,64)] <- c("maloaisv","loaisv","tinhtrang",
                                   "chuongtrinh","malop")
 write_dta(final, "finalfull.dta") 
 # Bao gom tat ca sinh vien
+
+###### merge in stata, find some MSSV do not exist in finalfull. Why?
+merge <- read.csv("C:/Users/Vu/Google Drive/Ph.D/LMS/merge_is_1.csv")
+
+a <- setdiff(merge$ï..MSSV,diemthi$MSSV)
+# only 1 MSSV of merge data does not exist in diemthi, so diemthi is fine
+
+a <- setdiff(merge$ï..MSSV,finalstudent$MSSV)
+# no problem
+
+
+
 

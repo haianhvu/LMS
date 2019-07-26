@@ -373,14 +373,15 @@ levels(as.factor(final$AreaID)) # cong diem khu vuc, KV1: 1.5, KV2NT: 1, KV2: 0.
 # Export to stata
 write_dta(final, "final.dta")
 # bao gom sinh vien k nhan hoc bong, sinh vien nhan KKHT only, 
-# va sinh vien nhan ca KKHT va HTHT, loai bo sinh vien nhan HTHT
+# va sinh vien nhan ca KKHT va HTHT, loai bo sinh vien nhan HTHT.
+# sinh vien o day la sinh vien CTT
 
 names(final)[c(51,52,53,54,58:60,62,64)] <- c("maloaisv","loaisv","tinhtrang",
                                   "fatherjob","khoa","nganh","nganhhoc",
                                   "chuongtrinh","malop")
 write_dta(final, "finalfull.dta") 
-# Bao gom tat ca sinh vien
-
+# Bao gom tat ca sinh vien CTT cua K42
+ 
 ###### merge in stata, find some MSSV do not exist in finalfull. Why?
 merge <- read.csv("C:/Users/Vu/Google Drive/Ph.D/LMS/merge_is_1.csv")
 

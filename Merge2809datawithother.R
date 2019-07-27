@@ -26,7 +26,7 @@ studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
 names(studentinfo)[1] <- c("MSSV")
 names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
 
-# Merge 2 data sets: diemthi and studentinfo
+# --------------- Merge 2 data sets: diemthi and studentinfo ------------
 fullstudent <- merge(diemthi, studentinfo, by = "MSSV", all=TRUE)
 
 # Diemthi 4943 while fullstudent 4983, why having more 40 cases?
@@ -55,6 +55,7 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 
 # Delete the DC major of this student
 finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
+# this is the final data
 sum(duplicated(fullstudent2$MSSV))
 sum(duplicated(finalstudent$MSSV))
 
@@ -65,7 +66,7 @@ test <- finalstudent[is.na(finalstudent$STT),] # 40 cases
 # data of K42. So why dont some K42 students have Diem Thi?
 
 # However, it is more general when we keep them in the data. We can eliminate
-# these observations later.
+# these observations later. Final data is finalstudent
 
 
 # -----------------  import Average Grade of CTT K42   -------------------
@@ -156,31 +157,50 @@ sum(HK1a$dup1 - HK1a$dup2) # check: 0 menas variable dup1 = varialbe dup2
 HK2a$dup3 <- ifelse(HK2a$MSSV %in% test2$MSSV,1,0)
 HK2a$dup4 <- ifelse(grepl(paste((test2$MSSV),collapse = "|"),HK2a$MSSV),1,0)
 
-# 
-hk1a <- unique(hk1) ### 3182 students. Still having 5 MSSV duplicated
-sum(duplicated(hk1a$MSSV)) #Still having 5 MSSV duplicated
-hk1a[duplicated(hk1a$MSSV),][,1]
-# it means: hk1a have 5 MSSV appearing 2 times
-# (note: duplicated only count TRUE for the repeated data, the first one
-# is not considered as duplicated)
-# Maybe these student study 2 majors.
-# So we should eliminate these students
-hk1a <- hk1a[!(duplicated(hk1a$MSSV) | 
-                 duplicated(hk1a$MSSV, fromLast = TRUE)),]
-# fromLast = TRUE: the first obserivation of duplicated group is also
-# considered as duplicated. Default is not being considered as duplicate.
+HK1a$term <- 1
+HK2a$term <- 1
+# list <- list(HK1a, HK2a)
+# for (i in 1:2) {
+#   list[[i]]$term <- 1
+# }
 
-hk2a <- unique(hk2) ### 3134. 
-sum(duplicated(hk2a$MSSV)) # Still having 8 MSSV duplicated
-hk2a[duplicated(hk2a$MSSV),][,1]
-hk2a <- hk2a[!(duplicated(hk2a$MSSV) | 
-                 duplicated(hk2a$MSSV, fromLast = TRUE)),] ### 3118
+setdiff(HK1a$MSSV,HK2a$MSSV) # 68 MSSV existing in HK1a, not in HK2a.
+# this number different from (4562 - 4510) because repeated observation
+setdiff(HK2a$MSSV,HK1a$MSSV) # 0: no new students
+
+# create HK data with wide format
+HKwide1 <- merge(HK1a, HK2a, by = "MSSV", all = TRUE) # 4594
+HKwide2 <- merge(HK1a, HK2a, by = "MSSV") # 4526
+# note: HK2a 4510, HK1a 4562.
+
+setdiff(HK1a$MSSV, HKwide1$MSSV) 
+# check and confirm: all MSSV of HKwide1 is HK1a.
+# 4594 differ 4562 because duplicated observations
+
+
+# Append HK1 and HK2 to create panel data (long)
+a <- HK1a
+b <- HK2a
+a[setdiff(names(b), names(a))] <- NA
+b[setdiff(names(a), names(b))] <- NA
+HK <- rbind(a,b)  # 4562 + 4510 = 9072 # this is main data of HK (long)
+
+a <- HK[which(HK$dup1==1 & HK$dup3==1),] # 0 observations
+a <- subset(HK, dup3==1 & is.na(dup1)) # 38 observations = 38 duplication above
+a <- subset(HK, dup1==1 & is.na(dup3)) # 14 observations = 14 duplication above
+
+# ----------- Combine data of HK (AGP of HK1 and HK2) 
+# and data of finalstudent (info and Entrance test) ----------------
+
+
+
+
 
 # Delete Students of BI, AV, AE major: 2839 students
 # removelist <- c('AV', "AE", 'BI')
 # hk1final <- hk1a[ !grepl(paste(removelist, collapse="|"), hk1a$Lá..p), ]
 # This is the "Nhom 4" Scholarship: 7.77 / 79
-hk1final <- hk1a
+# hk1final <- hk1a
 
 ###### Tabula
 table(hk1final[hk1final$Ä.iá.fm.TBCHT >= 7.77,]$Ä.iá.fm.rÃ.n.luyá..n)

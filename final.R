@@ -207,13 +207,13 @@ setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
-# Creat 27 score datasets for each of Majors
+# Creat 24 score datasets for each of Majors
 for (i in 1:27) {
   assign(paste("score",i, sep=""), data.frame(test[i])[-1,])
   assign(paste("zname",i, sep=""), data.frame(test[i])[1,])
 }
 
-# Combine 26 dataset into 1 dataset, there are 3215 students
+# Combine 24 dataset into 1 dataset, there are 3215 students
 score <- score1
 for (i in 2:27) {
   a <- data.frame(test[i])[-1,]

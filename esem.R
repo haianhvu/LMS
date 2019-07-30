@@ -92,8 +92,11 @@ for (i in 1:3) {
     paste0("F",i,"=~ ", paste0(c(b5.loadmat[,i]), "*", names(b5.loadmat[,1]), collapse = "+"))
 }
 
-# "Correlated uniqueness"
-terms[6] <- "A1 ~~ C2+E3+N3\n C2 ~~ E3+N3\n E3 ~~ N3"
+# the expression y1 ~~ y5 allows the residual variances of the
+# two observed variables to be correlated
+terms[4] <- " ENG513001 ~~ LAW511001" 
+
+"A1 ~~ C2+E3+N3\n C2 ~~ E3+N3\n E3 ~~ N3"
 
 b5.esem <- paste(terms, collapse = "\n")
 b5.esem

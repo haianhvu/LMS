@@ -35,7 +35,7 @@ VERBAL =~  PML510001 + PML510002 + LAW511001
 LANG =~ ENG513001 + ENG513002
 "
 
-b5.cfa <- cfa(b5.model, data = data2, estimator = "MLR")
+b5.cfa <- cfa(b5.model, data = data1, estimator = "MLR")
 # Marsh et al. (2013) fit measures:
 # CFI: .761, TLI: .687, RMSEA: .076
 # Our fit measures:
@@ -47,6 +47,7 @@ parallel <- fa.parallel(data2, fm = 'pa', fa = 'fa')
 
 b5.efa <- fa(data2, nfact = 3, rotate = "geominQ", fm = "ml")
 b5.efa <- fa(data2, nfact = 3, rotate = "Promax", fm = "pa")
+b5.efa <- fa(data2, nfact = 3, rotate = "promax", fm = "pa")
 b5.efa <- fa(data2, nfact = 3, rotate = "promax", fm = "ml")
 b5.efa <- factanal(data2,factors = 3,rotation = "promax")
 b5.efa
@@ -72,14 +73,14 @@ print(b5.efa$loadings,cutoff = 0.29) # results are nearly similar to stata
 fa.diagram(b5.efa)
 
 
-#
+# Create model for ESEM
 
 b5.loadmat <- zapsmall(matrix(round(b5.efa$loadings, 2), nrow = 9, ncol = 3))
 
-
+# Main code: Use this model with coefficients of STATA
 b5.loadmat <- read.csv("C:/Users/Vu/Google Drive/Ph.D/LMS/Loadings.csv",
                        header = FALSE,fileEncoding="UTF-8-BOM")
-b5.loadmat <- zapsmall(round(b5.loadmat, 2))
+b5.loadmat <- zapsmall(round(b5.loadmat, 3))
 b5.loadmat <- as.matrix(b5.loadmat)
 
 rownames(b5.loadmat) <- colnames(data2[,1:9])
@@ -94,7 +95,7 @@ for (i in 1:3) {
 
 # the expression y1 ~~ y5 allows the residual variances of the
 # two observed variables to be correlated
-terms[4] <- " ENG513001 ~~ LAW511001" 
+terms[4] <- " ENG513001 ~~ LAW511001"
 
 "A1 ~~ C2+E3+N3\n C2 ~~ E3+N3\n E3 ~~ N3"
 
@@ -133,11 +134,65 @@ c <- fitmeasures(cfa(
   estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
 
 e <- rbind(d,a,b,c)
+e
+diff(e)
 
 # As we can see, the model fit does not decrease substantially. 
 # The proposed cut-off values for rejecting measurement invariance 
 # are .01 for the CFI and .015 for the RMSEA. In this case, CFI and TLI 
 # only drop by .007 and the RMSEA increases by .003.
 
+########################
+x <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "AreaID",
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings (metric invariance) for AreaID
+y <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "AreaID",
+  group.equal = c("loadings"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings and intercepts (scalar invariance)
+z <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "AreaID",
+  group.equal = c("loadings","intercepts"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+e <- rbind(d,x,y,z)
+e
+diff(e)
 
 
+############ 
+k <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "Party",
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings (metric invariance)
+l <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "Party",
+  group.equal = c("loadings"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings and intercepts (scalar invariance)
+m <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "Party",
+  group.equal = c("loadings","intercepts"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+e <- rbind(d,k,l,m)
+e
+diff(e)

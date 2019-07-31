@@ -17,9 +17,9 @@ rm(list=ls())
 
 data <- read_dta("C:/Users/Vu/Google Drive/Ph.D/LMS/K43/factor43-24major-3109.dta")
 # this data eliminate some students studying 2 majors
-data1 <- sapply(data,as.numeric)
-data1 <- as.data.frame(data1)
-data2 <- data1[,c(2:10)] #3109
+#data1 <- sapply(data,as.numeric)
+data1 <- as.data.frame(data)
+data2 <- sapply(data1[,c(2:10)],as.numeric) #3109
 
 # data <- read_dta("C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta")
 # data1 <- sapply(data,as.numeric)
@@ -73,9 +73,9 @@ print(b5.efa$loadings,cutoff = 0.29) # results are nearly similar to stata
 fa.diagram(b5.efa)
 
 
-# Create model for ESEM
+# Create model for ESEM of K43
 
-b5.loadmat <- zapsmall(matrix(round(b5.efa$loadings, 2), nrow = 9, ncol = 3))
+b5.loadmat <- zapsmall(matrix(round(b5.efa$loadings, 3), nrow = 9, ncol = 3))
 
 # Main code: Use this model with coefficients of STATA
 b5.loadmat <- read.csv("C:/Users/Vu/Google Drive/Ph.D/LMS/Loadings.csv",
@@ -84,6 +84,7 @@ b5.loadmat <- zapsmall(round(b5.loadmat, 3))
 b5.loadmat <- as.matrix(b5.loadmat)
 
 rownames(b5.loadmat) <- colnames(data2[,1:9])
+b5.loadmat
 
 # This will turn the loading matrix into a lavaan-compatible equation set. 
 
@@ -102,13 +103,13 @@ terms[4] <- " ENG513001 ~~ LAW511001"
 b5.esem <- paste(terms, collapse = "\n")
 b5.esem
 
-b5.cfa2 <- cfa(b5.esem, data = data2, verbose = F, estimator = "MLR")
+b5.cfa2 <- cfa(b5.esem, data = data1, verbose = F, estimator = "MLR")
 
-d <- fitmeasures(b5.cfa2, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+dd <- fitmeasures(b5.cfa2, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
 fa.diagram(b5.cfa2)
 
 
-####################################
+#------ Check Invariance of Gender ----
   
 # No equality constraints (configural invariance)
 a <- fitmeasures(cfa(
@@ -142,7 +143,9 @@ diff(e)
 # are .01 for the CFI and .015 for the RMSEA. In this case, CFI and TLI 
 # only drop by .007 and the RMSEA increases by .003.
 
-########################
+#------------- Check invariance for AreaID------------
+
+# No equality constraints (configural invariance)
 x <- fitmeasures(cfa(
   model = b5.esem,
   data = data1,
@@ -170,7 +173,9 @@ e
 diff(e)
 
 
-############ 
+#-------------- Group Invariance for Party --------------------
+
+# No equality constraints (configural invariance)
 k <- fitmeasures(cfa(
   model = b5.esem,
   data = data1,
@@ -194,5 +199,38 @@ m <- fitmeasures(cfa(
   estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
 
 e <- rbind(d,k,l,m)
+e
+diff(e)
+
+############ Group Invariance for Religion
+data1$religion <- ifelse(data1$ReligionID==0,0,
+                         ifelse(data1$ReligionID=="PG","PG",
+                                ifelse(data1$ReligionID=="TC","TC","Khac"
+                                )))
+
+# No equality constraints (configural invariance)
+g <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "religion",
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings (metric invariance)
+h <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "religion",
+  group.equal = c("loadings"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+# Force equal loadings and intercepts (scalar invariance)
+i <- fitmeasures(cfa(
+  model = b5.esem,
+  data = data1,
+  group = "religion",
+  group.equal = c("loadings","intercepts"),
+  estimator = "MLR"), c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+
+e <- rbind(d,g,h,i)
 e
 diff(e)

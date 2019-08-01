@@ -53,7 +53,7 @@ b5.efa <- factanal(data2,factors = 3,rotation = "promax")
 b5.efa
 
 print(b5.efa$loadings,cutoff = 0.15)
-fa.diagram(b5.efa)
+fa.diagram(b5.efa, digits=3)
 
 # Try with K42 data
 dt <- read_dta("C:/Users/Vu/Google Drive/Ph.D/LMS/factorK42-24major.dta")
@@ -70,7 +70,7 @@ b5.efa <- fa(dt3, nfact = 3, rotate = "promax", fm = "pa")
 b5.efa
 
 print(b5.efa$loadings,cutoff = 0.29) # results are nearly similar to stata
-fa.diagram(b5.efa)
+fa.diagram(b5.efa, digits=3)
 
 
 # Create model for ESEM of K43

@@ -139,14 +139,17 @@ b5.cfa2 <- cfa(b5.esem, data = data1, verbose = F, estimator = "MLR")
 
 d <- fitmeasures(b5.cfa2, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
 fa.diagram(b5.cfa2)
-d
-fitmeasures(b5.cfa2, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+d # fit index is very good, RMSEA is smaller than 0.06
+
 summary(b5.cfa2)
 modindices(b5.cfa2, sort = TRUE, minimum.value = 5) 
 summary(b5.cfa2, fit.measures = TRUE,
-        standardized = TRUE)
+        standardized = TRUE) #H null: RMSEA <= 0.05: p-value=0.406 -> accept
+# Normally, the test is affectd by test size, so we should use Robust
+# estimation instead of sample estimation. Here, p-value of sample is 
+# 0.001, but p-value of robust is 0.406. 
 
-#------ Check Invariance of Gender ----
+#--------------------- Check Invariance of Gender ---------------------
   
 # No equality constraints (configural invariance)
 a <- fitmeasures(cfa(

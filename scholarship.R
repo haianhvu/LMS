@@ -46,8 +46,8 @@ sch2 <- rbind(kk_sch,ht_sch)
 #sch2 <- sch2[order(sch2$MSSV),]
 #test <- sch2[!(duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)), ]
 indDuplicatedVec <- duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)
-xuathien2hb <- sch2[indDuplicatedVec,]
-xuathien1hb <- sch2[!indDuplicatedVec,]
+xuathien2hb <- sch2[indDuplicatedVec,]  #36
+xuathien1hb <- sch2[!indDuplicatedVec,] #8
 
 
 # ------------------- Diem thi dau vao -------------------

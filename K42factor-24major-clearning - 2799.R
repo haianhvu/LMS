@@ -4,7 +4,7 @@ library("dplyr")
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 
-setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42")
 # Here, general courses only have 11 courses including 2 courses of FRE
 dc <- read_csv("daicuong2.csv")
 names(dc)[2:4] <- c("MaHP","Name","weight")
@@ -16,7 +16,7 @@ gc2 <- dc[,2]
 
 
 #Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
-Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24", pattern="*.csv")
+Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT24", pattern="*.csv",full.names=TRUE)
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
 # Creat 27 score datasets for each of Majors

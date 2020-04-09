@@ -34,7 +34,7 @@ MATH =~ ECO501001 + ECO501002 + MAT508001 + ACC507001
 VERBAL =~  PML510001 + PML510002 + LAW511001
 LANG =~ ENG513001 + ENG513002
 "
-b5.model <- "
+b5.model.modi <- "
 MATH =~ ECO501001 + ECO501002 + MAT508001 + ACC507001
 VERBAL =~  PML510001 + PML510002 + LAW511001
 LANG =~ ENG513001 + ENG513002
@@ -45,10 +45,15 @@ corPlot(data2,numbers = TRUE)
 pairs.panels(data2)
 
 b5.cfa <- cfa(b5.model, data = data1, estimator = "MLR", std.lv=TRUE)
+b5.cfa.modi <- cfa(b5.model.modi, data = data1, estimator = "MLR", std.lv=TRUE)
+
 # Marsh et al. (2013) fit measures:
 # CFI: .761, TLI: .687, RMSEA: .076
 # Our fit measures:
-fitmeasures(b5.cfa, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+a <- fitmeasures(b5.cfa, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+b <- fitmeasures(b5.cfa.modi, c("cfi.robust","tli.robust","rmsea.robust","srmr"))
+rbind(a,b)
+
 summary(b5.cfa)
 modindices(b5.cfa, sort = TRUE, minimum.value = 5) 
 summary(b5.cfa, fit.measures = TRUE,
@@ -56,7 +61,6 @@ summary(b5.cfa, fit.measures = TRUE,
 
 b5.cfa3 <- cfa(b5.model, data = data1, estimator = "MLR", 
               std.lv=TRUE, orthogonal = TRUE)
-
 anova(b5.cfa, b5.cfa3) 
 # The model allowing covariances among the three latent ability factors 
 # fits the data significantly better than a model treating the latent 
@@ -67,7 +71,6 @@ modelone <- "f  =~ ECO501001 + ECO501002 + MAT508001 + ACC507001
 
 b5.cfa1 <- cfa(modelone, data = data1, estimator = "MLR", 
                std.lv=TRUE)
-
 anova(b5.cfa, b5.cfa1) 
 # Yes, 3 factors is significantly better than 1 factors
 

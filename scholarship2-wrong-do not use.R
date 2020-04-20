@@ -3,6 +3,8 @@ install.packages("dplyr")
 
 library("readr")
 library("dplyr")
+library("foreign")
+library("haven")
 
 rm(list = ls())
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
@@ -34,12 +36,14 @@ kk_sch <- KKHT42[KKHT42$`chi nhan KKHT`==0,][,c(3,11:14)] # 26 students
 ht_sch <- HTHT42[HTHT42$`chi nhan HTHT`==0,][,c(3,11:14)] # 18 students
 
 # Why 26 and 18? They should be equal. Answer: 100% KKHT and 100% HTHT
+# students who receive KKHT 100% and HHHT 50% or 100% will only appear
+# in KKHT list.
 sch2 <- rbind(kk_sch,ht_sch)
 #sch2 <- sch2[order(sch2$MSSV),]
 #test <- sch2[!(duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)), ]
 indDuplicatedVec <- duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)
-xuathien2hb <- sch2[indDuplicatedVec,]
-xuathien1hb <- sch2[!indDuplicatedVec,]
+xuathien2hb <- sch2[indDuplicatedVec,] # 36 because 18 x 2
+xuathien1hb <- sch2[!indDuplicatedVec,] # setdiff also gives us 8
 
 
 # ------------------- Diem thi dau vao -------------------
@@ -72,7 +76,7 @@ xuathien1hb <- sch2[!indDuplicatedVec,]
 # ------ Input the data K42 Diem Thi Dau Vao ------
 # Test how many type of entrance exams: 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
-diemthi <- read_delim(file = "K42-Diem2.csv", delim=',')
+diemthi <- read_delim(file = "K42-Diem2.csv", delim=',') #4943
 levels(as.factor(diemthi$`Môn 1`)) ## Only Math
 levels(as.factor(diemthi$`Môn 2`)) ## Physics and Liter
 levels(as.factor(diemthi$`Môn 3`)) ## Chemistry and English
@@ -81,7 +85,7 @@ names(diemthi)[19] <- "MSSV"
 names(diemthi)[16] <- "MaHS"
 
 # Input data student info
-studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
+studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE) #4780
 names(studentinfo)[1] <- c("MSSV")
 names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
 
@@ -96,14 +100,13 @@ no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
 fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
 sum(is.na(fullstudent2$STT)) # 43 cases do not appear in diemthi?
 #why
-test <- fullstudent2[is.na(fullstudent2$STT),]
+test <- fullstudent2[is.na(fullstudent2$STT),]  #43
 sum(test$NÄfm.Tuyá.fn.sinh..TS. < 2016) # 36 cases
-no_diemthi42 <- test[test$NÄfm.Tuyá.fn.sinh..TS. == 2016, ]
+no_diemthi42 <- test[test$NÄfm.Tuyá.fn.sinh..TS. < 2016,]
 # 7 cases with 2 of them is Du Bi, some of them appers 2 times in merged data
 # e.g 31161027023 in fullstudent2 have problem in NgaySinh
 sum(duplicated(fullstudent2$MSSV)) # 4 cases
 a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, fromLast = TRUE),]
-
 
 diemthi$ngay <- as.Date(diemthi$NgaySinh, format = "%d/%m/%y")
 diemthi$ngay2 <- strftime(diemthi$ngay, "%d/%m/%Y")
@@ -116,3 +119,4 @@ diemthi$ngay <- b
 # or vice versus
 no_entrance <- fullstudent[is.na(fullstudent$HoLot),] # 41 students
 sum(no_entrance$NÄfm.Tuyá.fn.sinh..TS. < 2016)
+

@@ -1,0 +1,100 @@
+library("readr")
+library("dplyr")
+library("foreign")
+library("haven")
+
+rm(list = ls())
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
+
+###### Import HB data into R #######
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
+KKHT <- read.csv(file = "Ket-qua-HB-KKHT-UEH-HKD-2017.csv", stringsAsFactors=FALSE)
+HTHT <- read.csv(file = "Ket-qua-HB-HTHT-UEH-HKD-2017.csv", stringsAsFactors=FALSE)
+
+# Change the format
+names(HTHT) <- c("Stt","Khoa","MSSV","Lop","Ho","Ten","Ngay sinh","dtbhb","ren luyen","cmnd","%da cap","%HTHT","%KKHT","%HTHT+KKHT","Se nhan","so tien","chi nhan HTHT")
+names(KKHT) <- c("Stt","Khoa","MSSV","Lop","Ho","Ten","Ngay sinh","dtbhb","ren luyen","cmnd","%da cap","%HTHT","%KKHT","%HTHT+KKHT","Se nhan","so tien","chi nhan KKHT")
+
+KKHT$`ren luyen` <- as.numeric(sub(",", ".", KKHT$`ren luyen`, fixed = TRUE))
+KKHT$dtbhb <- as.numeric(sub(",", ".", KKHT$dtbhb, fixed = TRUE))
+HTHT$dtbhb <- as.numeric(sub(",", ".", HTHT$dtbhb, fixed = TRUE))
+
+# KKHT$dtbhb <- ifelse(KKHT$dtbhb > 100, KKHT$dtbhb/100, KKHT$dtbhb/10)
+# HTHT$dtbhb <- ifelse(HTHT$dtbhb > 100, HTHT$dtbhb/100, HTHT$dtbhb/10)
+
+# Keep the K42 student only, 516 and 162
+KKHT42 <- KKHT[KKHT$Khoa==42,]
+length(KKHT42$MSSV)
+HTHT42 <- HTHT[HTHT$Khoa==42,]
+length(HTHT42$MSSV)
+
+# Test how many k42 students receive 2 types of scholarship: 26 and 18
+length(which(KKHT42$`chi nhan KKHT`==0))
+sum(HTHT42$`chi nhan HTHT`==0)      
+
+# Retrieve k42 students having 2 scholarships
+kk_sch <- KKHT42[KKHT42$`chi nhan KKHT`==0,][,c(3,11:14)] # 26 students
+ht_sch <- HTHT42[HTHT42$`chi nhan HTHT`==0,][,c(3,11:14)] # 18 students
+
+# Why 26 and 18? They should be equal. Answer: 100% KKHT and 100% HTHT
+sch2 <- rbind(kk_sch,ht_sch)
+#sch2 <- sch2[order(sch2$MSSV),]
+#test <- sch2[!(duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)), ]
+indDuplicatedVec <- duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRUE)
+xuathien2hb <- sch2[indDuplicatedVec,]  #36
+xuathien1hb <- sch2[!indDuplicatedVec,] #8
+
+##### Input the data K42 Diem Thi Dau Vao #####
+# Test how many type of entrance exams: 
+setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
+diemthi <- read_delim(file = "K42-Diem2.csv", delim=',')
+levels(as.factor(diemthi$`Môn 1`)) ## Only Math
+levels(as.factor(diemthi$`Môn 2`)) ## Physics and Liter
+levels(as.factor(diemthi$`Môn 3`)) ## Chemistry and English
+levels(as.factor(diemthi$Khoi))    ## 3 types
+names(diemthi)[19] <- "MSSV"
+names(diemthi)[16] <- "MaHS"
+# Fix the problem
+diemthi[diemthi$SoBaoDanh == "DCN006136", ][7] <- "16/01/1998" 
+diemthi[diemthi$MSSV == "31161027023", ][7] <- "09/06/1997"
+diemthi[diemthi$MSSV == "31161027008", ][7] <- "04/03/1996"
+
+# Input data student info
+studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
+names(studentinfo)[1] <- c("MSSV")
+names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
+
+###### Merge 2 data sets: diemthi and studentinfo ######
+fullstudent <- merge(diemthi, studentinfo, by = "MSSV", all=TRUE) #4983
+
+# Diemthi 4943 while fullstudent 4983, why having more 40 cases?
+sum(is.na(fullstudent[,2])) #  40 cases: 36 cases from K41, K40, but 4 cases from K42.
+no_diemthi <- fullstudent[is.na(fullstudent[,2]), ]
+
+# Check again using another merge
+fullstudent2 <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
+sum(is.na(fullstudent2$STT)) # 40 cases do not appear in diemthi?
+diff <- setdiff(fullstudent2[,c(5:8,13:15)],fullstudent[,c(1:4,10,12,14)])
+length(diff$MSSV) # Diff is 0: no difference
+setdiff(fullstudent2$MSSV,fullstudent$MSSV)
+sum(duplicated(fullstudent$MSSV))
+sum(duplicated(fullstudent2$MSSV))
+
+# Test the reason again
+test <- fullstudent2[is.na(fullstudent2$STT),] # 40 cases
+sum(test[50] < 2016) #  36 cases from K41, 40
+no_diemthi42 <- test[test[50] == 2016, ] # 4 cases from K40
+# 7 cases with 2 of them is Du Bi, some of them appers 2 times in merged data
+# e.g 31161027023 in fullstudent2 have problem in NgaySinh
+sum(duplicated(fullstudent2$MSSV)) # 1 cases
+a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, fromLast = TRUE),]
+# only one cases who applied to two major
+
+# Delete the DC major of this student
+finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
+sum(duplicated(fullstudent2$MSSV))
+sum(duplicated(finalstudent$MSSV))
+#finalstudent is the main data after cleaning: 4982, info + diem thi dau vao
+write_csv(finalstudent, "info_and_entrance.csv")
+
+##### 

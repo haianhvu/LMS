@@ -7,7 +7,7 @@ library("dplyr")
 rm(list = ls())
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
 
-# Import data into R
+####### Import data LMS into R #####
 data <- read_delim(file = "Thong_ke_LMS_K42.csv", delim=',')
 
 # Check R read file correctly or not by using Excel and import csv file
@@ -22,7 +22,7 @@ a <- substr(data$`Sinh viên`,1,11)
 full_data <- cbind(a,data)
 names(full_data)[1] <- "MSSV"
 
-# import data into R
+#### import data into R ####
 hkc2016 <- read_csv("HKC2016.csv",col_types = cols(MaHP = "c"))
 hkc2017 <- read_csv("HKC2017.csv",col_types = cols(MaHP = "c"))
 hkd2017 <- read_csv("HKd2017.csv",col_types = cols(MaHP = "c"))
@@ -153,7 +153,7 @@ full_data <- transform(full_data,id=as.numeric(factor(classcode)))
 # faculty_lms_class <- faculty_lms_class[order(faculty_lms_class$Khoa),]
 
 
-# ---- Thong Tin Giang Vien va Lich Day---------
+#### Thong Tin Giang Vien va Lich Day ####
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
 
@@ -188,7 +188,7 @@ remove(full_hk)
 # full_general_hk$lms_hk <- ifelse(is.na(full_general_hk$LMS),0,1)
 # aggregate(lms_hk ~ Khoa,data=full_general_hk, FUN=sum) -> lmsclass_khoa
 
-# ------ Extract the weight of each classes (the number of credits of each class) ------
+###### Extract the weight of each classes (the number of credits of each class) ######
 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/")
 dc <- read_csv("daicuong2.csv")
@@ -207,7 +207,7 @@ setwd("C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT")
 Files <- list.files(path = "C:/Users/Vu/Google Drive/Ph.D/LMS/K42/CTT", pattern="*.csv")
 test <- lapply(Files, function(x) read.csv(x)) # Xem tren test de biet bao nhieu file
 
-# Creat 24 score datasets for each of Majors
+# Creat 24 score datasets for each of Majors (24 for CTT24 and 27 for CTT)
 for (i in 1:27) {
   assign(paste("score",i, sep=""), data.frame(test[i])[-1,])
   assign(paste("zname",i, sep=""), data.frame(test[i])[1,])
@@ -302,7 +302,7 @@ general_score2$specialmajor <- 1
 final_score2 <- general_score2[rowSums(is.na(general_score2[, -c(1:6)]))==0,]
 #final_score2 <- general_score[complete.cases(general_score[ , 7:18]),]
 
-# 2 duplicated observations ==> 0 students studies 2 majors
+# 0 duplicated observations ==> 0 students studies 2 majors
 test2 <- final_score2[duplicated(final_score2$MSSV) | duplicated(final_score2$MSSV, fromLast = TRUE),]
 
 
@@ -376,13 +376,15 @@ dup1 <- dup[seq(1,66,by=2),]
 dup2 <- dup[seq(2,66,by=2),]
 dup1 <- data.frame(dup1,dup2[,13:14])
 dup1$specialmajor<-ifelse((dup1$specialmajor==dup1$specialmajor.1)&(dup1$specialmajor==0),0,1)
+# if spcial_major = special_major_1 = 0: this MSSV doest not study specail major, so reiceive 0
 dup1$highqualtymajor<-ifelse((dup1$highqualtymajor==dup1$highqualtymajor.1)&(dup1$highqualtymajor==0),0,1)
 
 # Create dup_non data set that only has students learning 1 major
 dup_non <- full_general_score[!(duplicated(full_general_score$MSSV) | duplicated(full_general_score$MSSV, fromLast = TRUE)),]
 dup_non$nomajor <- 1
 
-# Merge dup and dup_non to create data with unique records: 4115 = 4148 - 33
+# Merge dup and dup_non to create data with unique records: 
+# 4115 = 4148 - 33
 full_general_score <- full_join(dup_non,dup1[,-c(19:20)])
 
 
@@ -404,13 +406,15 @@ names(studentinfo)[1] <- "MSSV"
 # Match student info to score dataset of full_general_score
 # It should have the same observation with full_general_score
 full_info_score_student <- merge(full_general_score, studentinfo, by = "MSSV")
+# all 4115 students of full_general_score are matched to studentinfo
 
 # Change False True of Gender to 0 (Nu), 1 (Nam)
 full_info_score_student$Gender[full_info_score_student$Gender==FALSE] <- 0
 full_info_score_student$Gender[full_info_score_student$Gender==TRUE] <- 1
 
 # Note: some K40, K41 students received their Degree, need to delete?
-
+write_csv(full_info_score_student,"info_and_general_course.csv")
+# Note: this file only have info of student and score of general course.
 
 #--------- Keep some objects important -------
 
@@ -525,7 +529,7 @@ names(codecourse)[9] <- "classcode"
 
 # Convert score data from wide to long
 names(info)[4:12] -> MaHP
-info <- info[,-c(16,17)]
+info <- info[,-c(16,17)] # delete names because we already had them
 names(info)[-c(4:12)] -> id
 # Score is the new variable capturing the grade of courses, 
 # MaHP is the code of courses.

@@ -49,34 +49,6 @@ indDuplicatedVec <- duplicated(sch2$MSSV) | duplicated(sch2$MSSV, fromLast = TRU
 xuathien2hb <- sch2[indDuplicatedVec,]  #36
 xuathien1hb <- sch2[!indDuplicatedVec,] #8
 
-
-# ------------------- Diem thi dau vao -------------------
-
-# # Input the data
-# setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
-# diemthi <- read_delim(file = "K42-Diem.csv", delim=',')
-# 
-# # Input data student info
-# studentinfo <- read.csv("Student-K42-Info.csv", stringsAsFactors=FALSE)
-# names(studentinfo)[1:2] <- c("MSSV")
-# names(studentinfo)[c(5,34:36)] <- c("NgaySinh","DM1","DM2","DM3")
-# 
-# # Merge 2 data sets
-# fullstudent <- merge(diemthi, studentinfo, by = intersect(names(diemthi), names(studentinfo)), all=TRUE)
-# 
-# # Checked if students have the same Birthdate, DM1, DM2, DM3
-# sum(duplicated(fullstudent[,1:5])) # 14 cases
-# same <- fullstudent[(duplicated(fullstudent[,1:5]) | duplicated(fullstudent[,1:5], fromLast = TRUE)), ]
-# # ==> some students applied to 2 Majors, i.e. their names appears twice in the list of successful applications 
-# #and some students have the same Birthdate and DM1,DM2,DM3
-# 
-# # Checked if students in the list DiemThi appear in the student info data
-# 
-# # or vice versus
-# no_entrance <- fullstudent[is.na(fullstudent$HoLot),c(1:4,11,14,43,52:54)] # 41 students
-# sum(no_entrance$NÄfm.Tuyá.fn.sinh..TS. < 2016)
-
-
 # ------ Input the data K42 Diem Thi Dau Vao ------
 # Test how many type of entrance exams: 
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
@@ -127,15 +99,6 @@ a <- fullstudent2[duplicated(fullstudent2$MSSV) | duplicated(fullstudent2$MSSV, 
 finalstudent <- fullstudent2[!(fullstudent2[5]=="31161022173" & fullstudent2[8]=="PT"), ]
 sum(duplicated(fullstudent2$MSSV))
 sum(duplicated(finalstudent$MSSV)) #finalstudent is the main data after cleaning: 4982, info + diem thi dau vao
-
-# ------- Merge with data General Full Score 
-# Finalstudent2: 4983 students, Full_gneral_score: 4115 students
-#-------- Do some Factor analysis ----
-# finalstudent <- merge(finalstudent, full_general_score, by = "MSSV" )
-# sum(duplicated(finalstudent$MSSV))
-# b <- data.frame(names(finalstudent))
-# a <- finalstudent[,c(1:8,128:139)] 
-# write_dta(a, "factor.dta")
 
 
 # -------------- Average Grade import -------------------
@@ -281,7 +244,7 @@ names(final_kkht4)[c(2:4,8:10,16:19,20:22)] <- c("ho","ten","ngaysinh","tinchi",
 # and final_kkht4 data = 2803: only keep NHOM 4 students
 # Note:
 # info + diemthidauvao = finalstudent: 4982 students
-# info + diemthidauvao + diem dai cuong = 4115 students (see in the file final.R)
+# info + diem dai cuong = 4115 students (see in the file final.R)
 setwd("C:/Users/Vu/Google Drive/Ph.D/LMS")
 x <- read.csv("info_and_general_course.csv")
 

@@ -270,3 +270,29 @@ final_b <- final_a %>% select(1:45,50,51,53)
 final_c <- final_b %>% mutate(hocbong=ifelse(is.na(final_b$`%KKHT`),0,1))
 # write.dta(final_c,"final_kkht_2584.dta") #2584
 
+
+##### Eliminate all of student receiving KKHT to create data for scholarship HTHT only #####
+kkht_id <- KKHT42$MSSV # Get MSSV of HTHT: 516 students
+# some receive 100% of 2 types of HB, some receive 50% of each HB
+# so need to keep them, not eliminate
+# get 18  MSSV receiving 2 scholarsips
+twosch <- intersect(HTHT42$MSSV,KKHT$MSSV) 
+only_kkht42 <- KKHT42[! KKHT42$MSSV %in% twosch,] # 516 -18 = 498 observations
+# Delete observations receiving HTHT only
+htht_final_data <- kkht_data %>% filter(!MSSV %in% only_kkht42$MSSV)
+# 2440
+
+final <- htht_final_data %>% select(1:4,8:20,22:24,27:38,46,
+                                    50,52,55,63,65,67,69,
+                                    151,159,161,163,164)
+
+final_a <- merge(final,hk2a, by="MSSV")
+
+final_b <- final_a %>% select(1:45,50,51,53)
+final_c <- final_b %>% mutate(hocbong=ifelse(is.na(final_b$`%HTHT`),0,1))
+
+##### only keep SV lower than 6.0 and only SV receiving HTHT
+a <- final_c %>% filter(tbht <= 6.0 )
+
+
+write.dta(final_c,"final_htht_2440.dta") #2584
